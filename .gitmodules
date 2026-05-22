@@ -1,0 +1,3 @@
+[submodule "vocion-core"]
+	path = vocion-core
+	url = git@github.com:vocion/vocion-core.git
