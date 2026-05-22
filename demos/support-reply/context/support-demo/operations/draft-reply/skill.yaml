@@ -1,0 +1,28 @@
+slug: draft_reply
+name: Draft Support Reply
+description: Draft a polite, helpful reply to a support ticket using the structured summary as context. Empathetic tone, plain language, asks at most one clarifying question. Lands in the review queue for human approval before sending.
+category: mutation
+status: active
+version: 1
+model: claude-sonnet-4-6
+temperature: '0.4'
+requiresApproval: true
+promptFile: prompt.md
+inputSchema:
+  type: object
+  required:
+    - summary
+    - ticket
+  properties:
+    summary:
+      type: string
+      description: Output from the summarize_ticket skill — 2-3 sentence triage summary
+    ticket:
+      type: string
+      description: Original ticket body (for tone-matching the user's voice)
+    customer_name:
+      type: string
+      description: Optional — the customer's name for greeting
+    sender_name:
+      type: string
+      description: 'Support agent name to sign off as (default: the Support team)'

@@ -1,0 +1,51 @@
+slug: support_triage
+name: Support Triage
+description: >-
+  L1 support-reply workflow. Summarizes an inbound ticket, drafts a reply,
+  and pauses for human approval before send. Send step is a stub in v1 —
+  wire to your help-desk connector (Zendesk / Intercom / Front) in v2.
+version: 1
+status: active
+trigger:
+  type: manual
+inputSchema:
+  type: object
+  required: [ticket]
+  properties:
+    ticket:
+      type: string
+      description: Raw inbound ticket body
+    customer_name:
+      type: string
+      description: Customer name (for greeting in the reply)
+    sender_name:
+      type: string
+      default: the Support team
+steps:
+  - name: summary
+    type: skill
+    skill: summarize_ticket
+    input:
+      ticket: '{{input.ticket}}'
+      customer_name: '{{input.customer_name}}'
+
+  - name: draft
+    type: skill
+    skill: draft_reply
+    input:
+      summary: '{{steps.summary.output}}'
+      ticket: '{{input.ticket}}'
+      customer_name: '{{input.customer_name}}'
+      sender_name: '{{input.sender_name}}'
+
+  - name: review
+    type: approve
+    prompt: Review the drafted support reply before sending.
+    reviews: draft
+
+  - name: send
+    type: action
+    action: stub.log_only
+    input:
+      to_customer: '{{input.customer_name}}'
+      body_from_step: draft

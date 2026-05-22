@@ -1,0 +1,21 @@
+slug: summarize_ticket
+name: Summarize Support Ticket
+description: Read an inbound support ticket and produce a 2-3 sentence summary capturing the user's core issue, relevant technical detail, and desired resolution. Optimized for fast classification before drafting.
+category: query
+status: active
+version: 1
+model: claude-haiku-4-5-20251001
+temperature: '0.2'
+requiresApproval: false
+promptFile: prompt.md
+inputSchema:
+  type: object
+  required:
+    - ticket
+  properties:
+    ticket:
+      type: string
+      description: Raw support ticket body (subject + message + any included context)
+    customer_name:
+      type: string
+      description: Optional — the customer's name if available
