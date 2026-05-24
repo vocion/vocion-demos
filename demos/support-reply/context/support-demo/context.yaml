@@ -1,5 +1,8 @@
 version: 1
-orgId: org_support_demo_REPLACE_WITH_CLERK_ORG_ID
+# Tenant scope. As of vocion-v0.3.0 (NextAuth + tenancy), context is bound to
+# the account/project the seed-demo script creates (account "Support Demo",
+# project slug "support-demo"). The previous Clerk org-id placeholder is gone.
+projectSlug: support-demo
 name: support-demo
 description: Demo org for the L1 support-reply demo (catalog row #3). Tickets in, reply drafts out.
 defaults:
