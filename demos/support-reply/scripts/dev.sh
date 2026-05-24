@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Run the support-reply demo against the pinned vocion-core submodule on PORT 3001.
+# Run the support-reply demo against the pinned vocion-core submodule on
+# PORT 3001. Assumes the umbrella's docker-compose Postgres is up (the
+# embedded pglite-server's `npm run dev` would otherwise collide on 5432);
+# we use `dev:next` to skip that and let the umbrella DB serve both cores.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -19,7 +22,8 @@ if [ ! -f "$DEMO_DIR/.env.local" ]; then
   exit 1
 fi
 
-# Load demo env (PORT, Clerk, LLM keys, etc.) into the shell so vocion-core picks them up.
+# Load demo env (PORT, AUTH_SECRET, LLM keys, etc.) into the shell so the
+# pinned vocion-core picks them up.
 set -a
 # shellcheck source=/dev/null
 source "$DEMO_DIR/.env.local"
@@ -29,9 +33,17 @@ export PORT="${PORT:-3001}"
 export CONTEXT_PATH="$DEMO_DIR/context/support-demo"
 
 echo "→ vocion-core: $CORE_DIR"
-echo "→ CONTEXT_PATH: $CONTEXT_PATH"
-echo "→ PORT: $PORT"
+echo "→ CONTEXT_PATH:  $CONTEXT_PATH"
+echo "→ PORT:          $PORT"
+echo "→ DATABASE_URL:  ${DATABASE_URL:-<unset>}"
+echo ""
+echo "Tip: the umbrella's docker-compose Postgres should already be up."
+echo "     If sign-in 500s, run \`docker compose up -d\` from vocion-local first."
 echo ""
 
 cd "$CORE_DIR"
-exec npm run dev
+# `dev:next` runs Next.js dev without the embedded pglite-server — Postgres
+# lives in the umbrella docker-compose (vocion_demo database). Switching
+# from `dev` to `dev:next` lets the demo run side-by-side with the umbrella
+# dashboard on :3000 without colliding on host 5432.
+exec npm run dev:next
