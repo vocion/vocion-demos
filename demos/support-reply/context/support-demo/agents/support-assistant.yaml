@@ -1,0 +1,36 @@
+slug: support-assistant
+name: Support assistant
+description: Drafts support replies, summarizes tickets, and routes everything customer-facing through a human approval gate before send.
+icon: bot
+model: claude-sonnet-4-6
+temperature: '0.3'
+
+# Skills this agent can invoke as tools. Match the two operations
+# authored in operations/summarize-ticket and operations/draft-reply.
+skillSlugs:
+  - summarize_ticket
+  - draft_reply
+
+# Object types this agent can read. (None today — the demo ships
+# without typed Objects; tickets are passed in as raw strings via the
+# workflow runner and the chat composer.)
+objectTypeSlugs: []
+
+# Source connector slugs the agent can search across. Empty here —
+# the L1 demo doesn't ingest from external sources yet; future
+# Zendesk / Intercom / Front integration lands as a v2 layer.
+connectorSources: []
+
+# Approval policy — drafts and refunds always need a human gate.
+# Currently expressed as a free-form policy doc; the runtime reads
+# `requiresApproval` per-skill (draft_reply has it set to true) so
+# this is informational for now.
+approvalPolicy:
+  always_approve:
+    - draft_reply
+  block:
+    - refund_processing
+    - account_deletion
+    - chargeback_response
+
+systemPromptFile: support-assistant.system-prompt.md
