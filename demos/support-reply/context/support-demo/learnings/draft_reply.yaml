@@ -1,0 +1,44 @@
+name: draft_reply
+title: draft_reply skill — refined rules from past reviews
+description: Skill-specific rules learned over time from human reviewers approving / rejecting / editing past drafts. Mounted at /learnings/draft_reply.md during runs of the draft_reply skill.
+agents:
+  - support-assistant
+preamble: |
+  Patterns that reviewers have repeatedly fixed in past drafts. Treat
+  each rule as a "do this without being asked."
+rules:
+  - id: mirror-customer-tone
+    text: |
+      Read the customer's body. If they wrote two short sentences, write
+      a short reply. If they wrote four paragraphs with details, write
+      a longer acknowledging-reply that hits each detail. Tone-mismatch
+      drafts get edited or rejected at the review gate.
+  - id: never-restate-the-problem
+    text: |
+      Skip "I understand you're having an issue with X." The customer
+      knows what they wrote — quoting it back wastes their time. Move
+      straight to acknowledgement + next step.
+  - id: open-with-context-not-condition
+    text: |
+      Open with what's happening for THEM (the customer-facing fact),
+      not what's happening on OUR end. "Your order is on the way" beats
+      "We've processed your order." Customers read the first sentence;
+      make it about them.
+  - id: avoid-jargon-unless-customer-used-it
+    text: |
+      Don't introduce "ticket," "case," "incident," "escalation," or
+      "SLA" unless the customer already used the word. They reached
+      out about a thing, not a workflow.
+  - id: end-with-a-concrete-next-step
+    text: |
+      The last line should tell the customer exactly what happens next
+      — what they should expect from us, in what timeframe, and whether
+      they need to do anything. "I'll be in touch as soon as I hear back"
+      is too vague; "I've flagged this for our billing team — you'll get
+      a confirmation email within 1 business day" is right.
+  - id: name-the-thing-the-customer-cares-about
+    text: |
+      For shipping-delay tickets, name the order id or product. For
+      billing tickets, name the charge amount and date. The customer
+      filed the ticket about something specific — mirror that specificity
+      back so they know we read it.

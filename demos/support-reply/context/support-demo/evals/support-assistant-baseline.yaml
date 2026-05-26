@@ -1,0 +1,121 @@
+slug: support-assistant-baseline
+name: Support assistant — baseline
+description: |
+  Eight canonical inbound tickets covering the spread of cases the support
+  assistant handles — calm shipping question, refund ask, technical issue,
+  billing duplicate, account-access urgency, vague ask, angry escalation,
+  positive feedback (no draft needed). Re-run after every prompt / context
+  change; target pass-rate ≥ 0.8.
+agentSlug: support-assistant
+version: 1
+items:
+  - input: |
+      Ticket from a.morgan@example.com (subject: "Where's my order?"):
+
+      Hi, I placed order #4821 ten days ago and it's still not here.
+      Your site said 5-7 day shipping. Can you check on this?
+    rubric: |
+      - Acknowledges the wait without over-apologizing.
+      - Names order #4821 specifically (mirrors the customer's specificity).
+      - Does NOT promise a refund or expedited shipping.
+      - Says a teammate will check tracking + follow up; 1-business-day timeframe is acceptable.
+    tags: [shipping, calm]
+
+  - input: |
+      Ticket from j.huang@example.com (subject: "Item broken — want refund"):
+
+      The headphones I bought arrived with a cracked cup. They were unused.
+      I'd like a refund please.
+    rubric: |
+      - Acknowledges the damage in shipping.
+      - References refund-policy: damaged-on-arrival → full refund OR replacement (customer's choice, default replacement).
+      - Does NOT approve the refund itself — "I've flagged this for our billing team" or "the recommended next step is X" phrasing.
+      - Asks ONE clarifying question max (e.g. "refund vs replacement").
+    tags: [refund, shipping]
+
+  - input: |
+      Ticket from devops@bigcorp.com (subject: "API returning 500s"):
+
+      Our integration with your /v1/runs endpoint started failing this
+      morning. Stack trace below:
+
+      Error: TimeoutError at line 142, request_id=req_abc123
+      Account ID: acc_98765
+
+      We're seeing this on every 5th request.
+    rubric: |
+      - Acknowledges the issue with technical specificity (the request_id, the account_id).
+      - Does NOT promise a fix timeline.
+      - Asks at most one clarifying question (e.g. "is the failure rate consistent or growing?").
+      - Mentions someone from engineering or on-call will look at the trace.
+    tags: [technical]
+
+  - input: |
+      Ticket from m.davis@example.com (subject: "Charged twice"):
+
+      I see two charges for $49 on my card from yesterday — order #5102.
+      Can you check and refund the duplicate?
+    rubric: |
+      - Acknowledges the duplicate without making the customer prove it.
+      - Per refund-policy: duplicate charge → refund within 24h, billing team actions.
+      - "I've flagged this for our billing team" framing.
+      - Does NOT ask the customer for both charge IDs.
+    tags: [billing, refund]
+
+  - input: |
+      Ticket from k.ortiz@example.com (subject: "URGENT — can't log in"):
+
+      I've tried resetting my password three times and the reset link keeps
+      sending me to a 404. I need to access my account TODAY for a client
+      demo at 2pm.
+    rubric: |
+      - Acknowledges the urgency (the 2pm demo) explicitly.
+      - Does NOT promise a fix by 2pm.
+      - Provides an interim path — "I'll loop in our on-call engineer immediately" or a workaround.
+      - Confirms what the customer should do next (try one specific thing OR stand by).
+    tags: [urgency, account-access]
+
+  - input: |
+      Ticket from r.tan@example.com (subject: "help"):
+
+      can you help
+    expectedOutput: A draft that asks ONE clarifying question to understand what the customer needs help with.
+    rubric: |
+      - Recognizes the ticket is too vague to draft a substantive reply.
+      - Asks ONE specific clarifying question (not "what do you need?" but
+        something like "could you share more about what's not working — is
+        this about your account, an order, or something else?").
+      - Friendly tone; no exasperation at the brevity.
+    tags: [vague, clarifying-question]
+
+  - input: |
+      Ticket from l.fox@example.com (subject: "This is unacceptable — I'm
+      calling my bank"):
+
+      I've been a customer for 4 years and spent over $2,400 with you.
+      This is the THIRD time my refund hasn't shown up. I'm filing a
+      chargeback with my bank today and leaving reviews everywhere. Get
+      your supervisor to call me by EOD.
+    expectedOutput: An escalation flag (no draft reply). The escalation-checklist playbook fires on chargeback language, 3rd repeat issue, AND high-value account.
+    rubric: |
+      - DOES NOT draft a reply directly to the customer.
+      - Surfaces the escalation flag with the reason cited (chargeback threat OR repeat issue OR high LTV — any one is enough).
+      - Notes the playbook reference (escalation-checklist).
+      - Tone is calm + decisive, not panicky.
+    tags: [escalation, chargeback]
+
+  - input: |
+      Ticket from h.lee@example.com (subject: "Just wanted to say thanks"):
+
+      Hey — your team helped me sort out a billing issue last week and the
+      person I worked with (didn't catch her name) was awesome. Pass along
+      my thanks. No reply needed.
+    expectedOutput: |
+      A short, warm acknowledgement (1-2 sentences) — OR the recommendation
+      that no draft is needed. Both are acceptable; the wrong answer is a
+      lengthy formal-sounding reply.
+    rubric: |
+      - Either surfaces "no draft needed" / "thank-you note — no action" OR drafts a 1-2 sentence warm reply.
+      - Does NOT try to upsell, ask for a review, or escalate.
+      - Does NOT include corporate boilerplate.
+    tags: [positive, no-action]

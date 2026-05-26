@@ -1,0 +1,43 @@
+slug: ticket
+label: Ticket
+description: Inbound customer support ticket — the unit of work the support-assistant operates on.
+icon: ticket
+schema:
+  fields:
+    subject:
+      type: string
+      description: Short summary written by the customer
+      required: true
+    body:
+      type: string
+      description: Full ticket body (plain text / markdown)
+      required: true
+    customer_email:
+      type: string
+      description: Email of the customer who filed the ticket
+    customer_name:
+      type: string
+      description: Display name of the customer
+    priority:
+      type: enum
+      values: [low, normal, high, urgent]
+      default: normal
+    channel:
+      type: enum
+      values: [email, web, chat, api]
+      default: email
+    received_at:
+      type: datetime
+      description: When the ticket arrived in the inbox
+      required: true
+    sla_due_at:
+      type: datetime
+      description: When the first-response SLA expires
+sourceRelevance:
+  zendesk: 1.0
+  gmail: 0.4
+classificationPrompt: |
+  Given a Zendesk ticket, categorize it into one of: billing, shipping,
+  technical, feedback, escalation. Use the ticket subject + body. Be
+  decisive — pick the single best fit even when the ticket touches
+  multiple areas; categorize by the dominant ask.

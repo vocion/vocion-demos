@@ -1,0 +1,16 @@
+slug: zendesk
+name: Zendesk (demo fixture)
+description: |
+  Inbound support tickets. In the support-reply demo, the data lives on
+  disk as markdown files under sample-tickets/ — same shape a real Zendesk
+  OAuth connector would yield (subject, body, customer_email, received_at).
+  When real OAuth ships in v0.5.5+, swap `kind: local-files` for
+  `kind: zendesk` and add credentials; the rest of the pipeline (chunk,
+  embed, index into knowledge_chunk, search via RetrievalService) stays
+  identical.
+kind: local-files
+config:
+  directory: ./sample-tickets
+  extensions:
+    - .md
+enabled: true
