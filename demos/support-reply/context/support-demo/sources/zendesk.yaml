@@ -1,16 +1,18 @@
 slug: zendesk
 name: Zendesk (demo fixture)
 description: |
-  Inbound support tickets. In the support-reply demo, the data lives on
-  disk as markdown files under sample-tickets/ — same shape a real Zendesk
-  OAuth connector would yield (subject, body, customer_email, received_at).
-  When real OAuth ships in v0.5.5+, swap `kind: local-files` for
-  `kind: zendesk` and add credentials; the rest of the pipeline (chunk,
-  embed, index into knowledge_chunk, search via RetrievalService) stays
-  identical.
-kind: local-files
+  5,000 inbound support tickets from a JSONL dump. Same shape a real
+  Zendesk CSV export or API pull would produce. The connector reads
+  each line as one document; if a row carries an `embedding` field,
+  IngestionService skips chunking + OpenAI and stores the vector
+  directly (this is the cached-embeddings path — run
+  `node scripts/embed-tickets.mjs` once to populate, then commit).
+
+  When real Zendesk OAuth ships, swap `kind: file-import` for
+  `kind: zendesk` with live credentials; the rest of the pipeline
+  (chunk → embed → knowledge_chunk → retrieval) is unchanged.
+kind: file-import
 config:
-  directory: ./sample-tickets
-  extensions:
-    - .md
+  path: ./data/tickets.jsonl
+  format: jsonl
 enabled: true

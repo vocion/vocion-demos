@@ -22,8 +22,21 @@ if [ ! -f "$DEMO_DIR/.env.local" ]; then
   exit 1
 fi
 
-# Load demo env (PORT, AUTH_SECRET, LLM keys, etc.) into the shell so the
-# pinned vocion-core picks them up.
+# Umbrella-root .env is the single source of truth for LLM provider keys
+# (ANTHROPIC_API_KEY, OPENAI_API_KEY, …). Source into the shell BEFORE
+# anything else so file-based env precedence in the nested vocion-core
+# can't shadow them — Next.js won't override a shell var.
+UMBRELLA_ROOT="$(cd "$REPO_ROOT/.." && pwd)"
+if [ -f "$UMBRELLA_ROOT/.env" ]; then
+  set -a
+  # shellcheck source=/dev/null
+  source "$UMBRELLA_ROOT/.env"
+  set +a
+fi
+
+# Load demo env (PORT, AUTH_SECRET, DATABASE_URL, demo creds, etc.) into the
+# shell. Demo-specific values only — never put LLM keys here; use the
+# umbrella .env above so they live in one place.
 set -a
 # shellcheck source=/dev/null
 source "$DEMO_DIR/.env.local"
