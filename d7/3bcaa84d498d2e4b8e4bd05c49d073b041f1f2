@@ -1,0 +1,19 @@
+vocion-core
+  s_d3d05d11fdadd6::t_ca191e03cc4091 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "d73bcaa84d498d2e4b8e4bd05c49d073b041f1f2",
+  "prompts": {},
+  "sessions": {
+    "s_d3d05d11fdadd6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "86493e96-9aea-41d3-ba36-0c135bdc6bf7",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Jamie Schiesel <schiesel.jamie@gmail.com>"
+    }
+  }
+}
