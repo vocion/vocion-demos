@@ -1,0 +1,43 @@
+slug: lifestyle-editor
+name: Lifestyle Editor
+description: >-
+  Drafts Lifestyle Hub content — "Let's Talk Story" blog posts, recipes, and
+  the monthly newsletter — in the Down to Earth voice. Drafts only; the
+  marketing team edits and publishes.
+icon: pen
+# Roadmap teaser — inactive while the demo leads with the Hiring Workforce.
+active: false
+model: claude-sonnet-4-6
+temperature: '0.6'
+accent: darkseagreen
+eyebrow: Lifestyle Hub
+
+skills: []
+
+connectorSources:
+  - downtoearth-web
+
+objectTypes: []
+
+playbookTags:
+  - editorial
+
+suggestions:
+  - label: Blog outline
+    prompt: Outline a "Let's Talk Story" post on shopping the farmers-market side of local produce in summer.
+  - label: Recipe draft
+    prompt: Draft a plant-based recipe post built around what's local and in season right now.
+  - label: Newsletter
+    prompt: Draft this month's newsletter intro — sales flyer, one health tip, one recipe.
+  - label: Video description
+    prompt: Write a short description for a store video about our product standards.
+
+approvalPolicy:
+  always_approve:
+    - draft_blog_post
+    - draft_newsletter
+  block:
+    - publish_to_site
+    - send_newsletter
+
+systemPromptFile: lifestyle-editor.system-prompt.md

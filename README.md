@@ -10,7 +10,8 @@ Each demo lives under `demos/<slug>/` and consumes a **pinned version** of vocio
 vocion-demos/
 ├── vocion-core/         # git submodule — pinned to a specific vocion-core tag
 ├── demos/
-│   └── support-reply/   # one directory per demo (context + scripts)
+│   ├── support-reply/   # one directory per demo (context + scripts)
+│   └── down-to-earth/
 └── scripts/
     ├── upgrade-core.sh  # bump the submodule to a new tag
     └── new-demo.sh      # scaffold a new demos/<slug>/ dir
@@ -41,6 +42,7 @@ vocion-core is pinned at **`vocion-v0.1.0`**. See `vocion-core/` for the actual 
 | Slug | Title | Level | Status |
 |------|-------|-------|--------|
 | `support-reply` | Support reply drafting from tickets | L1 (Drafting) | Stub |
+| `down-to-earth` | Down to Earth Organic & Natural — Hiring Workforce: score every applicant 1–100, route to the right store, human-approved | L2 (Score → route → approve) | Demo-ready |
 
 ## Upgrading the core pin
 

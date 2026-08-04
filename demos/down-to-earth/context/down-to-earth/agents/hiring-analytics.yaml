@@ -1,0 +1,44 @@
+slug: hiring-analytics
+name: Hiring Analytics Agent
+description: >-
+  Chain-wide visibility for corporate — pipeline by store, which shortlists
+  are sitting unreviewed, which sources produce hires who stay, and score
+  distributions. Reads everything, changes nothing.
+icon: bar-chart
+active: true
+model: claude-sonnet-4-6
+temperature: '0.2'
+accent: seagreen
+eyebrow: Hiring Workforce
+
+skills:
+  - pipeline_report
+
+connectorSources:
+  - indeed
+  - careers-website
+
+objectTypes:
+  - applicant
+  - role
+
+playbookTags:
+  - hiring
+
+suggestions:
+  - label: Pipeline this week
+    prompt: What does the applicant pipeline look like this week, by store?
+  - label: Sitting shortlists
+    prompt: Which stores have scored applicants waiting more than 5 days without a manager review?
+  - label: Source quality
+    prompt: Indeed vs. the website — which source is producing higher-scoring applicants?
+  - label: Score distribution
+    prompt: Show the score distribution for entry-level applicants this month.
+
+approvalPolicy:
+  block:
+    - reject_applicant
+    - hire_applicant
+    - contact_applicant
+
+systemPromptFile: hiring-analytics.system-prompt.md
