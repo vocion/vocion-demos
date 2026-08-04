@@ -1,0 +1,44 @@
+slug: store-routing
+name: Store Routing Agent
+description: >-
+  Sends qualified applicants to the right store and manager by location,
+  role, and availability — email, the way Indeed routes today. Management
+  applicants also route to corporate admin. Every routing is a draft a
+  human approves.
+icon: route
+active: true
+model: claude-sonnet-4-6
+temperature: '0.2'
+accent: seagreen
+eyebrow: Hiring Workforce
+
+skills:
+  - route_candidate
+
+connectorSources:
+  - indeed
+  - careers-website
+
+objectTypes:
+  - applicant
+  - role
+
+playbookTags:
+  - hiring
+
+suggestions:
+  - label: Route an applicant
+    prompt: This scored applicant wants Kailua or Pearlridge — where should they route and why?
+  - label: Ambiguous store
+    prompt: An applicant didn't state a store preference. How do we route them?
+  - label: Management applicant
+    prompt: Route this Level 4 store manager applicant — who needs to see it?
+
+approvalPolicy:
+  always_approve:
+    - route_candidate
+  block:
+    - reject_applicant
+    - hire_applicant
+
+systemPromptFile: store-routing.system-prompt.md

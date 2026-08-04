@@ -1,0 +1,26 @@
+slug: downtoearth-web
+name: downtoearth.org (public site)
+description: |
+  The public marketing site — store pages, departments, standards,
+  certifications, the Lifestyle Hub, and recipes. This is the only
+  knowledge this stub instance has; there is no POS, inventory,
+  e-commerce, or Perks data wired up.
+
+  Manual sync only (no `schedule:`) — nothing crawls on its own.
+  Trigger it from /dashboard/sources when you want fresh content.
+
+  Caveats before leaning on this:
+    - The `web` connector strips HTML with a regex. JS-rendered
+      sections (the flyer, the online store) will come through thin
+      or empty.
+    - It does not read robots.txt. TODO: confirm crawl permission
+      with Down to Earth before raising maxPages or adding a schedule.
+    - TODO: swap the crawl for an explicit `urls:` list once the
+      pages that matter are known — a targeted list beats a BFS.
+kind: web
+config:
+  crawl:
+    startUrl: https://www.downtoearth.org/
+    maxDepth: 2
+    maxPages: 25
+enabled: true

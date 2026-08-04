@@ -1,0 +1,21 @@
+version: 1
+# Tenant scope. `orgId` is the legacy field name (from the Clerk era); the
+# runtime treats it as a generic tenant id and `context:apply --org <id>`
+# overrides it. Set to the project slug so the manifest is self-describing.
+orgId: down-to-earth
+projectSlug: down-to-earth
+name: down-to-earth
+description: >-
+  Down to Earth Organic & Natural — Hawaii's plant-based grocery + deli
+  chain since 1977. Six stores (Kahului on Maui; Honolulu, Kakaako, Kailua,
+  Pearlridge, Kapolei on Oahu), <300 team members. This instance is the
+  HIRING WORKFORCE demo for the Jul 2026 proposal: every applicant from
+  Indeed + the website is read, scored 1-100 against the role criteria,
+  and routed to the right store and manager — with a human approving every
+  step. Managers always make the hiring decision. Applicant data here is
+  synthetic; store-manager names are demo fixtures.
+defaults:
+  # Matches the pinned core's own defaults (libs/llm/langchain.ts) so cost
+  # tracking in libs/pricing.ts resolves. Bump alongside a core pin bump.
+  model: claude-sonnet-4-6
+  temperature: '0.3'

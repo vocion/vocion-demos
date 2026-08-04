@@ -1,0 +1,23 @@
+slug: pipeline_report
+name: Pipeline Report
+description: >-
+  Chain-wide hiring pipeline summary for corporate — by store, by source,
+  by score band, with sitting shortlists and open flags. Read-only.
+category: query
+status: active
+version: 1
+model: claude-sonnet-4-6
+temperature: '0.2'
+requiresApproval: false
+promptFile: prompt.md
+inputSchema:
+  type: object
+  required:
+    - applicants
+  properties:
+    applicants:
+      type: string
+      description: Applicant records to summarize (retrieved rows, or a pasted export)
+    focus:
+      type: string
+      description: 'Optional angle: by-store | by-source | score-bands | sitting | flags'

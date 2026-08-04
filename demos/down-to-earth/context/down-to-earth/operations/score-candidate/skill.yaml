@@ -1,0 +1,25 @@
+slug: score_candidate
+name: Score Candidate
+description: >-
+  Score a structured applicant profile 1–100 against the written criteria
+  for that role and level, with a plain-language explanation and policy
+  flags. Below 50 = held from routing (visible, never deleted). Smoking =
+  CEO-approval flag, never a rejection.
+category: query
+status: active
+version: 1
+model: claude-sonnet-4-6
+temperature: '0.1'
+requiresApproval: false
+promptFile: prompt.md
+inputSchema:
+  type: object
+  required:
+    - profile
+  properties:
+    profile:
+      type: string
+      description: Structured profile from the review_application operation
+    application:
+      type: string
+      description: Original raw application, for verifying evidence

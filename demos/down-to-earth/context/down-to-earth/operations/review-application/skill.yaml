@@ -1,0 +1,24 @@
+slug: review_application
+name: Review Application
+description: >-
+  Parse a raw application (resume + application answers, from Indeed or the
+  website) into a structured applicant profile — experience, availability,
+  level mapping, policy answers, and gaps. Extraction only; no judgment.
+category: query
+status: active
+version: 1
+model: claude-sonnet-4-6
+temperature: '0.1'
+requiresApproval: false
+promptFile: prompt.md
+inputSchema:
+  type: object
+  required:
+    - application
+  properties:
+    application:
+      type: string
+      description: Raw application text — resume plus application-form answers, as received from Indeed or the website
+    source:
+      type: string
+      description: 'Where it came from: indeed or website (default: unknown)'

@@ -1,0 +1,37 @@
+name: score_candidate
+title: score_candidate — rules refined from review decisions
+description: Skill-specific rules the scoring step accumulates as corporate and managers approve, adjust, and decline in the review queue. Seeded with the patterns the demo should exhibit; real deployments grow this from actual decisions.
+agents:
+  - candidate-scoring
+preamble: |
+  Patterns reviewers have corrected (or, in this demo, patterns we seed so
+  the mechanism is visible). Treat each as a "do this without being asked."
+rules:
+  - id: quote-the-evidence
+    text: |
+      Every "met" or "not met" cites the resume's own words. "2 yrs café +
+      deli counter" convinces a manager; "relevant experience" does not.
+      Adjusted scores in the review queue almost always trace back to an
+      unevidenced criterion call.
+  - id: weekend-availability-is-the-swing
+    text: |
+      For Level 2 roles, stated weekend availability is the single most
+      common difference between a routed and a borderline applicant.
+      When availability is missing, say explicitly: "weekends unknown —
+      could move this from 62 to ~75."
+  - id: dont-double-count-one-job
+    text: |
+      One deli job satisfies customer-facing AND food-handling — count the
+      evidence under both criteria but describe it once. Explanations that
+      repeat the same job three times read as padding and erode trust in
+      the number.
+  - id: cap-notes-go-first
+    text: |
+      When a Level 3/4 cap applies (no supervisory history → max 60; no
+      management scope → max 55), lead the explanation with the cap and
+      what would lift it. Managers should never discover a cap by doing
+      the math themselves.
+  - id: name-the-band-not-just-the-number
+    text: |
+      "Score: 72 — solid match" reads correctly at a glance; a bare "72"
+      makes managers ask whether that's good. Always attach the band.
