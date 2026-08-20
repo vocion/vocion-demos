@@ -1,0 +1,37 @@
+slug: scheduling-support
+name: Scheduling Support
+description: >-
+  Drafts store schedules against team availability and coverage needs; every schedule is reviewed by the manager before posting. Indicative add-on: +$750/mo — quoted in writing before approval, joins
+  the same subscription, supervision, audit trail, and exit right.
+icon: calendar-clock
+# Registry teaser — proposal §12 "The workforce grows when you say so."
+# Available, not in this agreement or price. Flip active to demo how a
+# coworker joins: fixed quote → weeks not a project → fully supervised.
+active: false
+model: claude-sonnet-4-6
+temperature: '0.3'
+accent: seagreen
+eyebrow: 'Agent Registry — available'
+
+# No operations authored yet — a stub that answers from playbooks +
+# retrieval. Operations arrive with the engagement that activates it.
+skills: []
+
+connectorSources: []
+
+objectTypes: []
+
+playbookTags:
+  - hiring
+
+suggestions:
+  - label: What would you do?
+    prompt: 'You''re not active yet. If Down to Earth added you, what would you handle and where does a person approve?'
+
+approvalPolicy:
+  block:
+    - reject_applicant
+    - hire_applicant
+    - contact_applicant
+
+systemPromptFile: scheduling-support.system-prompt.md
