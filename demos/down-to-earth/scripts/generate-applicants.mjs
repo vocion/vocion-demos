@@ -3,8 +3,8 @@
  * generate-applicants.mjs — synthetic applicant fixtures for the Down to
  * Earth Hiring Workforce demo.
  *
- * Writes two JSONL files under context/down-to-earth/data/ (file-import
- * resolves paths relative to CONTEXT_PATH):
+ * Writes two JSONL files under workspace/down-to-earth/data/ (file-import
+ * resolves paths relative to WORKSPACE_PATH):
  *   - applicants-indeed.jsonl   (~40 rows — fuller resumes)
  *   - applicants-website.jsonl  (~20 rows — shorter "Join our Team" form)
  *
@@ -21,7 +21,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'context', 'down-to-earth', 'data');
+const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'workspace', 'down-to-earth', 'data');
 
 // Mulberry32 — tiny seeded PRNG, deterministic across runs.
 function rng(seed) {
@@ -143,8 +143,66 @@ function makeApplicant(i, source) {
   };
 }
 
+// Curated fixtures — the three illustrative applicants on the Aug 2026
+// proposal's "Kailua manager inbox" page (M. Torres 88 / K. Nakamura 81 /
+// J. Silva 74), authored so a live applicant_intake run reproduces the
+// proposal's trace. Appended after the generated rows with fixed ids so
+// the generated ids (APP-IN-001…040) never shift. All invented people.
+const CURATED = [
+  {
+    name: 'Marisol Torres', role: 'Deli Clerk', store: 'Kailua',
+    blurb: '2 years café and deli counter at a Honolulu coffee shop — prepped the grab-and-go case, ran register on shift rotation; current food-handler card; light on inventory systems',
+    availability: 'weekends + evenings', smokes: 'no', ack: 'acknowledged',
+    received: '2026-08-11T09:12:00-10:00',
+    why: 'I shop at Down to Earth and love what the store stands for.',
+  },
+  {
+    name: 'Keone Nakamura', role: 'Deli Clerk', store: 'Kailua',
+    blurb: '1 year grocery clerk at a neighborhood market — register, restock, weekend shift work; current food-handler card',
+    availability: 'evenings + weekends', smokes: 'no', ack: 'acknowledged',
+    received: '2026-08-11T14:47:00-10:00',
+    why: 'Looking for steady work close to home.',
+  },
+  {
+    name: 'Jonah Silva', role: 'Deli Clerk', store: 'Kailua',
+    blurb: '3 years restaurant kitchen — prep and line, shift work; no food-handler card yet (willing to get one)',
+    availability: 'weekends', smokes: 'no', ack: 'acknowledged',
+    received: '2026-08-12T10:03:00-10:00',
+    why: 'Ready for a change from my current industry.',
+  },
+].map((c, i) => ({
+  id: `APP-IN-${String(41 + i).padStart(3, '0')}`,
+  name: `${c.name} — ${c.role} (${c.store})`,
+  body: [
+    `Application via Indeed for ${c.role} — ${c.store} store.`,
+    '',
+    'RESUME',
+    `${c.name} · ${c.name.toLowerCase().replace(/[^a-z]+/g, '.')}@example.com · Oahu, HI`,
+    `Experience: ${c.blurb}.`,
+    'Two references listed.',
+    '',
+    'APPLICATION ANSWERS',
+    `Store preference: ${c.store}`,
+    `Availability: ${c.availability}`,
+    `Plant-based policy (no meat, eggs, or fish on property): ${c.ack}`,
+    `Do you vape or smoke?: ${c.smokes}`,
+    `Why Down to Earth: ${c.why}`,
+  ].join('\n'),
+  received_at: c.received,
+  role_applied: c.role,
+  level: 'level-2',
+  store_preference: c.store.toLowerCase(),
+  source: 'indeed',
+  availability: c.availability,
+  plant_based_ack: 'acknowledged',
+  smokes_or_vapes: 'no',
+  applicant_email: `${c.name.toLowerCase().replace(/[^a-z]+/g, '.')}@example.com`,
+  fixture: true,
+  curated: 'proposal-p4-kailua-shortlist',
+}));
+
 mkdirSync(OUT_DIR, { recursive: true });
-const indeed = Array.from({ length: 40 }, (_, i) => makeApplicant(i, 'indeed'));
+const indeed = [...Array.from({ length: 40 }, (_, i) => makeApplicant(i, 'indeed')), ...CURATED];
 const website = Array.from({ length: 20 }, (_, i) => makeApplicant(i, 'website'));
 writeFileSync(join(OUT_DIR, 'applicants-indeed.jsonl'), `${indeed.map(r => JSON.stringify(r)).join('\n')}\n`);
 writeFileSync(join(OUT_DIR, 'applicants-website.jsonl'), `${website.map(r => JSON.stringify(r)).join('\n')}\n`);

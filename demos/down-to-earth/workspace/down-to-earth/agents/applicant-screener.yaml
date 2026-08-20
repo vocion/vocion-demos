@@ -1,0 +1,54 @@
+slug: applicant-screener
+name: Applicant Screener
+description: >-
+  Reads every application from Indeed and the website within minutes of
+  arrival, scores it 1–100 against Down to Earth's written standard for
+  that role and level, explains the score in plain language, applies the
+  deal-breakers and policy flags, and drafts follow-ups for missing
+  information. Below the threshold (70) = held from routing — visible,
+  recoverable, never auto-rejected. Proposal p.3: "The Applicant Screener."
+icon: file-search
+active: true
+model: claude-sonnet-4-6
+temperature: '0.2'
+accent: seagreen
+eyebrow: Hiring Workforce
+
+# The Screener's skill list from the proposal — parse resume, read answers,
+# extract experience & availability, score vs the rubric, explain every
+# score, apply deal-breakers, flag policy exceptions, request missing info.
+skills:
+  - review_application
+  - score_candidate
+  - draft_candidate_followup
+
+connectorSources:
+  - indeed
+  - careers-website
+
+objectTypes:
+  - applicant
+  - role
+
+playbookTags:
+  - hiring
+
+suggestions:
+  - label: Screen an application
+    prompt: 'Screen this application end to end: paste the resume + application answers and I''ll extract the profile, score it against the rubric, and explain the number.'
+  - label: Why that score?
+    prompt: Walk me through why the last applicant scored the way they did — what added and what subtracted.
+  - label: Near-miss holds
+    prompt: Which held applicants scored 60–69 — just under the threshold and worth a second human look?
+  - label: Chase missing info
+    prompt: Draft one follow-up email to an applicant who didn't state availability — collect every gap at once.
+
+approvalPolicy:
+  always_approve:
+    - draft_candidate_followup
+  block:
+    - reject_applicant
+    - hire_applicant
+    - schedule_interview
+
+systemPromptFile: applicant-screener.system-prompt.md

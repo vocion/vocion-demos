@@ -45,10 +45,12 @@ source "$DEMO_DIR/.env.local"
 set +a
 
 export PORT="${PORT:-3003}"
-export CONTEXT_PATH="$DEMO_DIR/context/down-to-earth"
+# Pinned core is v2.x: the context system is now "workspaces" and reads
+# WORKSPACE_PATH (fileImport resolves fixture paths relative to it too).
+export WORKSPACE_PATH="$DEMO_DIR/workspace/down-to-earth"
 
-echo "→ vocion-core:  $CORE_DIR"
-echo "→ CONTEXT_PATH: $CONTEXT_PATH"
+echo "→ vocion-core:    $CORE_DIR"
+echo "→ WORKSPACE_PATH: $WORKSPACE_PATH"
 echo "→ PORT:         $PORT"
 echo "→ DATABASE_URL: ${DATABASE_URL:-<unset>}"
 echo ""

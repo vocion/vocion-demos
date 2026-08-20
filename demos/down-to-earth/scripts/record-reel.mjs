@@ -2,7 +2,7 @@
 /**
  * record-reel.mjs — headlessly record assets/demo-reel.html → assets/dte-hiring-demo.mp4.
  *
- * The reel is a self-contained auto-playing HTML timeline (~151s at 1920×1080);
+ * The reel is a self-contained auto-playing HTML timeline (~180s at 1920×1080);
  * Playwright records it to webm, ffmpeg re-encodes to a faststart h264 mp4.
  *
  * Requires: `playwright` resolvable (npx -y playwright@latest works), a matching
