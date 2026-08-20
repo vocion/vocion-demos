@@ -9,13 +9,13 @@ Everything applicant- or manager-shaped in here is an invented fixture. The scor
 
 ## What's in this demo
 
-**Prefer a video?** `assets/dte-hiring-demo.mp4` is a ~3-minute headlessly-rendered walkthrough reel (stylized "illustrative interface," watermarked, all data synthetic) — the send-ahead / leave-behind companion to the live demo. Source is `assets/demo-reel.html`; regenerate with `node scripts/record-reel.mjs` (needs playwright + ffmpeg).
+**Prefer a video?** `assets/dte-hiring-demo.mp4` is a ~3-minute headlessly-rendered walkthrough reel with voiceover and a synthesized music bed (stylized "illustrative interface," watermarked, all data synthetic) — the send-ahead / leave-behind companion to the live demo. Source is `assets/demo-reel.html`; regenerate with `node scripts/record-reel.mjs` (needs playwright + ffmpeg; narration uses macOS `say`, so pass `--silent` elsewhere). Frames render deterministically against a stepped virtual clock, so the output is smooth 30fps regardless of machine load. Narration text and the music synth live in `scripts/build-reel-audio.mjs` — for a nicer voice, download a Premium voice in System Settings → Spoken Content and change `VOICE`.
 
 ```
 demos/down-to-earth/
 ├── WALKTHROUGH.md                             # the demo script — read this
 ├── assets/
-│   ├── dte-hiring-demo.mp4                    # rendered walkthrough reel
+│   ├── dte-hiring-demo.mp4                    # rendered reel (VO + music)
 │   └── demo-reel.html                         # reel source (auto-playing timeline)
 ├── workspace/down-to-earth/                   # v2 core: "workspace", was "context"
 │   ├── workspace.yaml                         # tenant manifest
@@ -48,7 +48,8 @@ demos/down-to-earth/
 ├── scripts/
 │   ├── dev.sh                                 # → http://localhost:3003 (exports WORKSPACE_PATH)
 │   ├── generate-applicants.mjs                # deterministic fixture generator
-│   └── record-reel.mjs                        # headless Playwright → mp4 renderer
+│   ├── record-reel.mjs                        # virtual-time frame renderer → mp4
+│   └── build-reel-audio.mjs                   # narration (say) + synth music bed
 └── .env.example
 ```
 

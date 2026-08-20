@@ -4,7 +4,7 @@ The demo script for presenting to Amy (and the HR manager). Each beat maps to a 
 
 **The one-sentence frame to open with:** "Two AI coworkers read, score, and route every applicant from Indeed and your website against a standard written with you — and a person approves every step. Your managers hire."
 
-**Video version:** `assets/dte-hiring-demo.mp4` is a ~3-minute rendered reel of these same beats (stylized "illustrative interface," watermarked, synthetic data) — use it as the send-ahead with the proposal or the leave-behind after the live demo. It is *not* a recording of the real product; say so if asked.
+**Video version:** `assets/dte-hiring-demo.mp4` is a ~3-minute rendered reel of these same beats, with voiceover and a light music bed (stylized "illustrative interface," watermarked, synthetic data) — use it as the send-ahead with the proposal or the leave-behind after the live demo. It is *not* a recording of the real product; say so if asked.
 
 ---
 

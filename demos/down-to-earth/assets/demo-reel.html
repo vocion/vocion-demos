@@ -55,34 +55,27 @@
   #side .user .who { font-size: 14px; color: #e8f0ea; } #side .user .who small { display: block; color: #7d9484; font-size: 12px; }
 
   #main { flex: 1; position: relative; overflow: hidden; }
-  .scene { position: absolute; inset: 0; padding: 40px 56px; opacity: 0; transform: translateY(14px); transition: opacity .7s ease, transform .7s ease; pointer-events: none; }
-  .scene.on { opacity: 1; transform: none; }
+  .scene { position: absolute; inset: 0; padding: 40px 56px; opacity: 0; transform: translateY(14px); pointer-events: none; }
   h1 { font-size: 33px; font-weight: 750; letter-spacing: -.01em; }
   .kicker { font-size: 13.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--green-deep); font-weight: 700; margin-bottom: 10px; }
   .sub { font-size: 18px; color: var(--ink-2); margin-top: 10px; max-width: 980px; line-height: 1.5; }
 
-  /* staged reveal inside a scene */
-  .rv { opacity: 0; transform: translateY(12px); transition: opacity .55s ease, transform .55s ease; }
-  .scene.on .rv { opacity: 1; transform: none; }
-  .scene.on .d1 { transition-delay: .5s; } .scene.on .d2 { transition-delay: 1.1s; }
-  .scene.on .d3 { transition-delay: 1.7s; } .scene.on .d4 { transition-delay: 2.3s; }
-  .scene.on .d5 { transition-delay: 2.9s; } .scene.on .d6 { transition-delay: 3.5s; }
+  /* staged reveal inside a scene — animated by the JS tween engine below;
+     .d1–.d6 carry the stagger metadata (delay = .5s + .6s per step) */
+  .rv { opacity: 0; transform: translateY(12px); }
 
   .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 1px 2px rgba(23,34,27,.05); }
 
   /* ---------- caption bar + watermark ---------- */
   #caption { position: fixed; left: 0; right: 0; bottom: 0; height: 92px; background: #12241a; color: #f2f6f1;
     display: flex; align-items: center; justify-content: center; font-size: 24px; letter-spacing: .01em; padding: 0 120px; text-align: center; }
-  #caption span { opacity: 0; transition: opacity .5s ease; }
-  #caption span.on { opacity: 1; }
+  #caption span { opacity: 0; }
   #wm { position: fixed; top: 64px; right: 18px; background: rgba(23,34,27,.78); color: #e9efe9; font-size: 13px;
     padding: 7px 14px; border-radius: 999px; z-index: 50; letter-spacing: .02em; }
 
   /* cursor (shared across scenes) */
   #cursor { position: absolute; width: 26px; height: 26px; border-radius: 50%; background: rgba(23,34,27,.28);
-    border: 2.5px solid rgba(23,34,27,.55); z-index: 40; pointer-events: none; opacity: 0;
-    transition: top 1.1s cubic-bezier(.4,0,.2,1), left 1.1s cubic-bezier(.4,0,.2,1), opacity .4s, transform .15s; }
-  #cursor.press { transform: scale(.75); }
+    border: 2.5px solid rgba(23,34,27,.55); z-index: 40; pointer-events: none; opacity: 0; }
 
   .btn { border: 1.5px solid var(--line); background: var(--surface); border-radius: 10px; font-size: 15px; padding: 11px 18px; color: var(--ink-2); font-weight: 600; }
   .btn.primary { background: var(--green); border-color: var(--green); color: #fff; }
@@ -136,23 +129,20 @@
   .doc b { color: var(--ink); font-weight: 650; }
   .doc .sect { margin-top: 14px; font-size: 12px; letter-spacing: .1em; color: var(--ink-3); text-transform: uppercase; font-weight: 700; }
   .work { padding: 26px 30px; display: flex; flex-direction: column; }
-  .step { display: flex; gap: 13px; align-items: flex-start; padding: 10px 0; opacity: .28; transition: opacity .5s ease; font-size: 16.5px; }
-  .step.go { opacity: 1; }
+  .step { display: flex; gap: 13px; align-items: flex-start; padding: 10px 0; opacity: .28; font-size: 16.5px; }
   .step .bullet { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line); flex: none; margin-top: -1px;
-    display: flex; align-items: center; justify-content: center; font-size: 13px; color: transparent; transition: all .4s ease; background: var(--surface); }
+    display: flex; align-items: center; justify-content: center; font-size: 13px; color: transparent; background: var(--surface); }
   .step.done .bullet { background: var(--green); border-color: var(--green); color: #fff; }
   .step .lab b { font-weight: 700; } .step .lab small { display: block; color: var(--ink-2); font-size: 14.5px; margin-top: 2px; }
   #scorebox { margin-top: 14px; display: flex; gap: 26px; align-items: center; background: var(--green-tint); border-radius: var(--radius);
-    padding: 20px 28px; opacity: 0; transform: scale(.97); transition: all .5s ease; }
-  #scorebox.go { opacity: 1; transform: none; }
+    padding: 20px 28px; opacity: 0; transform: scale(.97); }
   #dial { width: 132px; height: 132px; flex: none; }
   #dial .num { font-size: 40px; font-weight: 800; fill: var(--green-deep); font-variant-numeric: tabular-nums; }
   #dial .cap2 { font-size: 12px; fill: var(--ink-2); }
   #scorebox .why { font-size: 16px; line-height: 1.55; color: var(--ink); }
   #scorebox .why b { color: var(--green-deep); }
   #routeline { margin-top: 14px; display: flex; align-items: center; gap: 12px; font-size: 17px; font-weight: 650;
-    opacity: 0; transition: opacity .5s ease; color: var(--ink); }
-  #routeline.go { opacity: 1; }
+    opacity: 0; color: var(--ink); }
   #routeline .arr { color: var(--green-deep); }
   #routeline .chip { background: #16281e; color: #fff; border-radius: 999px; padding: 7px 16px; font-size: 15px; }
 
@@ -187,7 +177,7 @@
     padding: 6px 13px; border-radius: 999px; margin-top: 9px; }
   .acts { display: flex; gap: 10px; justify-content: flex-end; }
   .qrow.held { opacity: .78; } .qrow.held .score { color: var(--ink-3); }
-  #row1.approved { background: var(--green-tint); border-color: var(--green); transition: all .4s ease; }
+  #row1.approved { background: var(--green-tint); border-color: var(--green); }
   #row1 .acts .approvedtag { display: none; align-items: center; gap: 9px; color: var(--green-deep); font-weight: 700; font-size: 16px; }
   #row1.approved .acts .btn { display: none; }
   #row1.approved .acts .approvedtag { display: inline-flex; }
@@ -225,7 +215,7 @@
   .proposal blockquote { font-size: 20px; line-height: 1.55; margin: 18px 0 4px; color: var(--ink); max-width: 1050px; }
   .proposal .evid { color: var(--ink-2); font-size: 14.5px; margin-top: 10px; }
   .proposal .pacts { display: flex; gap: 12px; margin-top: 22px; align-items: center; }
-  #prop.approved { background: var(--green-tint); border-color: var(--green); transition: all .4s ease; }
+  #prop.approved { background: var(--green-tint); border-color: var(--green); }
   #prop .pacts .approvedtag { display: none; align-items: center; gap: 9px; color: var(--green-deep); font-weight: 700; font-size: 16.5px; }
   #prop.approved .pacts .btn { display: none; }
   #prop.approved .pacts .approvedtag { display: inline-flex; }
@@ -548,13 +538,63 @@
   const holdScene = params.get('scene');
   const speed = Number(params.get('speed') || 1);
 
+  // ---------- JS tween engine ----------
+  // ALL motion runs off requestAnimationFrame timestamps, never CSS
+  // transitions: the recorder steps a virtual clock frame by frame, which
+  // drives rAF + timers deterministically, while compositor-side CSS
+  // transitions freeze or snap under it. Supported props: opacity, y
+  // (translateY px), scale, left/top (px).
+  const easeOut = p => 1 - (1 - p) ** 3;
+  const easeInOut = p => (p < 0.5 ? 4 * p * p * p : 1 - ((-2 * p + 2) ** 3) / 2);
+  const tweens = [];
+  function tween(el, props, { dur = 550, delay = 0, ease = easeOut } = {}) {
+    tweens.push({ el, props, dur: dur / speed, delay: delay / speed, ease, start: null });
+  }
+  // The clock is performance.now(), NOT the rAF timestamp: under the
+  // recorder's virtual time, timers and performance.now() follow the
+  // stepped clock exactly, while rAF timestamps drift (they only advance
+  // when frames are produced). rAF here just paces repaints.
+  requestAnimationFrame(function loop() {
+    const now = performance.now();
+    for (let i = tweens.length - 1; i >= 0; i--) {
+      const t = tweens[i];
+      if (t.start === null) { t.start = now + t.delay; }
+      if (now < t.start) { continue; }
+      const p = Math.min(1, (now - t.start) / t.dur);
+      const e = t.ease(p);
+      const st = t.el.style;
+      for (const [k, range] of Object.entries(t.props)) {
+        const v = range[0] + (range[1] - range[0]) * e;
+        if (k === 'opacity') { st.opacity = String(v); }
+        else if (k === 'y') { st.transform = `translateY(${v}px)`; }
+        else if (k === 'scale') { st.transform = `scale(${v})`; }
+        else if (k === 'left') { st.left = `${v}px`; }
+        else if (k === 'top') { st.top = `${v}px`; }
+      }
+      if (p >= 1) { tweens.splice(i, 1); }
+    }
+    requestAnimationFrame(loop);
+  });
+
+  // staggered reveals: .d1–.d6 → delay .5s + .6s per step
+  function revealScene(sc) {
+    sc.querySelectorAll('.rv').forEach((el) => {
+      const d = [...el.classList].find(c => /^d[1-6]$/.test(c));
+      const delay = d ? 500 + 600 * (Number(d[1]) - 1) : 0;
+      tween(el, { opacity: [0, 1], y: [12, 0] }, { delay });
+    });
+  }
+
   function setNav(key) {
     document.querySelectorAll('#side a').forEach(a => a.classList.toggle('on', a.dataset.nav === key));
   }
   function setCap(text) {
     const el = $('#cap');
-    el.classList.remove('on');
-    setTimeout(() => { el.textContent = text; if (text) { el.classList.add('on'); } }, 350);
+    tween(el, { opacity: [Number(el.style.opacity || 0), 0] }, { dur: 300 });
+    setTimeout(() => {
+      el.textContent = text;
+      if (text) { tween(el, { opacity: [0, 1] }, { dur: 450 }); }
+    }, 350 / speed);
   }
 
   // cursor drifts to a button, presses, then a callback fires
@@ -563,43 +603,55 @@
     at(startAt, () => {
       const cur = $('#cursor');
       const m = $('#main').getBoundingClientRect(); const b = btn.getBoundingClientRect();
-      cur.style.left = `${b.left - m.left - 220}px`; cur.style.top = `${b.top - m.top + 90}px`;
-      cur.style.opacity = '1';
-      at(400, () => { cur.style.left = `${b.left - m.left + b.width / 2 - 13}px`; cur.style.top = `${b.top - m.top + b.height / 2 - 13}px`; });
-      at(1900, () => cur.classList.add('press'));
-      at(2150, () => { cur.classList.remove('press'); onPress(); });
-      at(3300, () => { cur.style.opacity = '0'; });
+      const x0 = b.left - m.left - 220; const y0 = b.top - m.top + 90;
+      const x1 = b.left - m.left + b.width / 2 - 13; const y1 = b.top - m.top + b.height / 2 - 13;
+      cur.style.left = `${x0}px`; cur.style.top = `${y0}px`;
+      tween(cur, { opacity: [0, 1] }, { dur: 350 });
+      at(400, () => tween(cur, { left: [x0, x1], top: [y0, y1] }, { dur: 1100, ease: easeInOut }));
+      at(1900, () => tween(cur, { scale: [1, 0.75] }, { dur: 140 }));
+      at(2150, () => { tween(cur, { scale: [0.75, 1] }, { dur: 140 }); onPress(); });
+      at(3300, () => tween(cur, { opacity: [1, 0] }, { dur: 350 }));
     });
   }
 
   // scene 4 choreography — read → standards → score dial → route
   function runS4() {
     const at = (ms, fn) => setTimeout(fn, ms / speed);
-    at(2500, () => $('#st1').classList.add('go'));
+    at(2500, () => tween($('#st1'), { opacity: [0.28, 1] }, { dur: 450 }));
     at(4600, () => $('#st1').classList.add('done'));
-    at(5200, () => $('#st2').classList.add('go'));
+    at(5200, () => tween($('#st2'), { opacity: [0.28, 1] }, { dur: 450 }));
     at(7600, () => $('#st2').classList.add('done'));
     at(8200, () => {
-      $('#scorebox').classList.add('go');
-      // count 0 → 88 + sweep the dial arc
-      const t0 = performance.now();
+      tween($('#scorebox'), { opacity: [0, 1], scale: [0.97, 1] }, { dur: 500 });
+      // count 0 → 88 + sweep the dial arc, clocked by performance.now()
+      // (virtual-time-consistent) with rAF only pacing the repaints.
       const dur = 2200 / speed;
       const C = 351.9;
-      (function tick(now) {
-        const p = Math.min(1, (now - t0) / dur);
+      const t0 = performance.now();
+      requestAnimationFrame(function tick() {
+        const p = Math.min(1, (performance.now() - t0) / dur);
         const eased = 1 - (1 - p) ** 3;
         const v = Math.round(88 * eased);
         $('#scorenum').textContent = v;
         $('#arc').setAttribute('stroke-dashoffset', String(C - C * 0.88 * eased));
         if (p < 1) { requestAnimationFrame(tick); }
-      })(t0);
+      });
     });
-    at(13500, () => $('#routeline').classList.add('go'));
+    at(13500, () => tween($('#routeline'), { opacity: [0, 1] }, { dur: 500 }));
   }
 
   function playScene(i) {
     const cfg = TL[i];
-    document.querySelectorAll('.scene').forEach(sc => sc.classList.toggle('on', sc.id === cfg.s));
+    document.querySelectorAll('.scene').forEach((sc) => {
+      if (sc.id === cfg.s) {
+        sc.classList.add('on');
+        tween(sc, { opacity: [0, 1], y: [14, 0] }, { dur: 700 });
+        revealScene(sc);
+      } else if (sc.classList.contains('on')) {
+        sc.classList.remove('on');
+        tween(sc, { opacity: [1, 0] }, { dur: 400 });
+      }
+    });
     setNav(cfg.nav);
     setCap(cfg.cap);
     if (cfg.s === 's4') { runS4(); }
@@ -613,10 +665,7 @@
   cursorEl.id = 'cursor';
   $('#main').appendChild(cursorEl);
 
-  if (holdScene) {
-    // debug: show one scene and hold
-    playScene(Number(holdScene) - 1);
-  } else {
+  function startTimeline() {
     let idx = 0; let elapsed = 0;
     for (idx = 0; idx < TL.length; idx++) {
       const i = idx;
@@ -624,5 +673,16 @@
       elapsed += TL[i].t;
     }
     setTimeout(() => { window.__done = true; }, (elapsed + 800) / speed);
+  }
+
+  if (holdScene) {
+    // debug: show one scene and hold
+    playScene(Number(holdScene) - 1);
+  } else if (params.get('paused')) {
+    // recorder mode: scripts/record-reel.mjs pauses virtual time, then calls
+    // window.__start() and advances the clock one frame budget at a time.
+    window.__start = startTimeline;
+  } else {
+    startTimeline();
   }
 </script>
