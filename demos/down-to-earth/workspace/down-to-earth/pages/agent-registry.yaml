@@ -1,0 +1,9 @@
+# Agent Registry — the proposal §12 expansion story as a markdown page.
+# The two active coworkers plus what can be added later, with indicative
+# pricing. Content lives in agent-registry.md.
+slug: agent-registry
+title: Agent Registry
+description: Your two AI coworkers today, and the bench behind them.
+icon: users
+nav: { section: Hiring, order: 4 }
+archetype: markdown

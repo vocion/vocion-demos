@@ -1,0 +1,39 @@
+# Hiring Command Center — the reel's "command center" scene as a real page.
+# Derivative of the core objects list archetype: stats row + score
+# distribution widget + the full applicant table. No new data model — reads
+# the `applicant` business objects the pipeline (and seed script) maintain.
+slug: command-center
+title: Hiring Command Center
+description: Every applicant, every store, one queue — scored 1–100 against Down to Earth's own standard.
+icon: gauge
+nav: { section: Hiring, order: 1 }
+archetype: list
+source: { kind: objects, objectType: applicant }
+sort: { field: meta.score, dir: desc }
+stats:
+  - { label: Applicants this cycle, kind: count }
+  - { label: Average score, kind: avg, field: meta.score }
+  - { label: Qualified (70+), kind: pctGte, field: meta.score, threshold: 70, suffix: "%" }
+  - { label: CEO-approval flags, kind: countWhere, where: { field: meta.ceo_flag, op: eq, value: true } }
+widgets:
+  - component: ScoreDistribution
+    title: Score distribution
+    position: above
+    data: [rows]
+fields:
+  - { key: name, label: Applicant, from: meta.name }
+  - { key: role, label: Role, from: meta.role }
+  - { key: store, label: Store, from: meta.store }
+  - { key: source, label: Source, from: meta.source, format: mono }
+  - { key: score, label: Score, from: meta.score, format: score }
+  - key: band
+    label: Band
+    from: meta.band
+    format: badge
+    tones: { strong: ok, qualified: info, near-miss: warn, held: muted }
+  - key: status
+    label: Status
+    from: status
+    format: badge
+    tones: { routed: ok, held: warn }
+rowLink: /dashboard/objects/{id}
