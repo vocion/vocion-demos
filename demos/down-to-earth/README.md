@@ -9,7 +9,7 @@ Everything applicant- or manager-shaped in here is an invented fixture. The scor
 
 ## What's in this demo
 
-**Prefer a video?** `assets/dte-hiring-demo.mp4` is a ~3-minute headlessly-rendered walkthrough reel with voiceover and a synthesized music bed (stylized "illustrative interface," watermarked, all data synthetic) — the send-ahead / leave-behind companion to the live demo. Source is `assets/demo-reel.html`; regenerate with `node scripts/record-reel.mjs` (needs playwright + ffmpeg; narration uses macOS `say`, so pass `--silent` elsewhere). Frames render deterministically against a stepped virtual clock, so the output is smooth 30fps regardless of machine load. Narration text and the music synth live in `scripts/build-reel-audio.mjs` — for a nicer voice, download a Premium voice in System Settings → Spoken Content and change `VOICE`.
+**Prefer a video?** `assets/dte-hiring-demo.mp4` is a ~3-minute headlessly-rendered walkthrough reel with voiceover and a synthesized music bed (stylized "illustrative interface," watermarked, all data synthetic) — the send-ahead / leave-behind companion to the live demo. Source is `assets/demo-reel.html`; regenerate with `node scripts/record-reel.mjs` (needs playwright + ffmpeg). Frames render deterministically against a stepped virtual clock, so the output is smooth 30fps regardless of machine load. Narration text and the music synth live in `scripts/build-reel-audio.mjs`: it uses **ElevenLabs** when `ELEVENLABS_API_KEY` is set (env or the umbrella `vocion-local/.env`; voice/model via `ELEVEN_VOICE_ID`/`ELEVEN_MODEL`), falling back to macOS `say` without a key — pass `--silent` to skip audio entirely.
 
 ```
 demos/down-to-earth/
