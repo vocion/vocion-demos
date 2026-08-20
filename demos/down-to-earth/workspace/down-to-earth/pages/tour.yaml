@@ -1,0 +1,125 @@
+# The guided demo walkthrough — the WALKTHROUGH.md beats as an in-app,
+# driver.js-style forced tour (core: libs/workspace/tour.ts, PR #58 branch).
+# Start: the floating "Guided demo" button, or any dashboard URL + ?tour=1.
+# interactive: true lets the audience click (mask still dims); routePrefix
+# lets a step land on dynamic ids like /dashboard/objects/57.
+title: Guided demo
+autoStart: false
+steps:
+  - route: /dashboard/p/command-center
+    selector: "#wsx-stats"
+    placement: bottom
+    title: Your hiring, on one screen
+    body: >-
+      Every applicant from Indeed and downtoearth.org lands in one queue and is
+      scored 1–100 against a standard written with you. Sixty-three this cycle —
+      about your real monthly volume. Store managers never need this page; it
+      exists so corporate always knows.
+
+  - route: /dashboard/p/command-center
+    selector: "#wsx-widgets-above"
+    placement: bottom
+    title: "Threshold 70, and nobody is auto-rejected"
+    body: >-
+      70 and above routes to a store manager. Below 70 is held with the reason
+      recorded — recoverable, never rejected by a machine — and 60–69 near-misses
+      are called out for a second look.
+
+  - route: /dashboard/p/command-center
+    selector: "#wsx-table"
+    placement: top
+    interactive: true
+    title: "Every row opens the full record — try it"
+    body: >-
+      Click any applicant. Every score is traceable to the application it came
+      from — the record, the reasoning, the history. Click Next when you're
+      ready to move on.
+
+  - route: /dashboard/objects
+    routePrefix: true
+    placement: center
+    title: The applicant record
+    body: >-
+      This is the record behind the row — the same object the coworkers read and
+      scored, with its documents linked. Nothing in this system is a number
+      without a paper trail.
+
+  - route: /dashboard/sources
+    placement: center
+    title: Both channels, one queue
+    body: >-
+      Indeed and the website Careers page, connected. Nothing changes about how
+      people apply — and nothing writes into your systems. ADP gets an export you
+      trigger on hire; Trackstar has no connection of any kind, on purpose.
+
+  - route: /dashboard/agents
+    placement: center
+    title: The two AI coworkers
+    body: >-
+      The Applicant Screener reads, scores, and explains every application. The
+      Store Router sends qualified candidates to the right store manager. Your
+      standards — the plant-based policy, the smoking flag — are written into
+      governed, versioned playbooks, applied the same way in every store.
+
+  - route: /dashboard/workflows
+    placement: center
+    title: "Run one live: Applicant Intake"
+    body: >-
+      Marisol Torres — Deli Clerk, Kailua. Watch it read the application, score
+      it (≈88, with the why in plain English), route it to the Kailua manager —
+      and stop. Nothing sends. It is waiting for a person.
+
+  - route: /dashboard/p/screening-activity
+    selector: "#wsx-table"
+    placement: top
+    title: The audit trail — with your feedback on it
+    body: >-
+      Every step a coworker takes is logged and attributable, and your team's
+      thumbs-up / thumbs-down feedback lives on the runs themselves — that is
+      the raw material the standard learns from, with your approval.
+
+  - route: /dashboard/p/screening-activity
+    selector: "#wsx-review"
+    placement: top
+    title: Waiting on a person — the same queue as Review
+    body: >-
+      These are core review items, embedded here scoped to hiring. Approve or
+      decline here or in Review — it is one queue, one audit trail. Marisol's
+      routing is sitting in it right now.
+
+  - route: /dashboard/review
+    placement: center
+    title: The human gate
+    body: >-
+      The same items, in the operator's focus view — approve, adjust, or
+      decline, one at a time. Every decision is logged and trains the standard.
+      The hiring decision itself is never automated, at any level.
+
+  - route: /dashboard/p/store-inbox
+    selector: "#wsx-table"
+    placement: top
+    interactive: true
+    title: What each store manager sees
+    body: >-
+      Each store's 70+ shortlist, delivered by email — the same channel Indeed
+      uses today. A smoker with a strong history keeps their score; the flag
+      just says the CEO decides. Click any name to open the record.
+
+  - route: /dashboard/learnings
+    placement: center
+    title: The standard learns — with approval
+    body: >-
+      That thumbs-up on shift work you saw in the trail? When a pattern has
+      enough evidence and is job-related, the system proposes the change in
+      plain language. Nothing changes until you approve it; approved once,
+      applied in all six stores the same day, versioned and reversible.
+
+  - route: /dashboard/p/agent-registry
+    selector: "#wsx-table"
+    placement: top
+    title: Hiring is the first job, not the last
+    body: >-
+      Two coworkers active, seven on the bench — these are live records on the
+      platform, not a brochure. Each activates by a one-line amendment with a
+      fixed quote in writing first. You own the platform, the data, and every
+      agent on it.

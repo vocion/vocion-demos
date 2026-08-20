@@ -14,10 +14,16 @@ source:
 sort: { field: createdAt, dir: desc }
 fields:
   - { key: title, label: Run, from: title }
+  - { key: applicant, label: Applicant, from: meta.applicant, format: mono }
   - key: status
     label: Status
     from: status
     format: badge
     tones: { pending: warn, completed: ok, approved: ok, rejected: bad, failed: bad }
   - { key: confidence, label: Confidence, from: meta.confidence, format: badge }
+  - key: rating
+    label: Feedback
+    from: meta.rating
+    format: badge
+    tones: { up: ok, down: bad }
   - { key: createdAt, label: When, from: createdAt, format: date }
