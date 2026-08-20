@@ -1,12 +1,32 @@
 # Down to Earth — Hiring Workforce demo walkthrough
 
-The demo script for presenting to Amy (and the HR manager). Each beat maps to a page of the **Aug 2026 "AI Hiring Workforce" proposal** ($1,500/mo all-in · 24-month term · two AI coworkers), so the demo *shows* what the doc *says*. Total runtime ~15 minutes. Setup must be done beforehand (see README — DB, migrate, seed, workspace apply, source sync, and at least two pre-run workflow runs so the review queue isn't empty — start with `APP-IN-041`).
+The demo script for presenting to Amy (and the HR manager). Each beat maps to a page of the **Aug 2026 "AI Hiring Workforce" proposal** ($1,500/mo all-in · 24-month term · two AI coworkers), so the demo *shows* what the doc *says*. Total runtime ~15 minutes. Setup must be done beforehand (see README — DB, migrate, seed, workspace apply, source sync, the processed-applicant seed for the workspace pages, and at least two pre-run workflow runs so the review queue isn't empty — start with `APP-IN-041`).
 
 **The one-sentence frame to open with:** "Two AI coworkers read, score, and route every applicant from Indeed and your website against a standard written with you — and a person approves every step. Your managers hire."
 
 **Video version:** `assets/dte-hiring-demo.mp4` is a ~3-minute rendered reel of these same beats, with voiceover and a light music bed (stylized "illustrative interface," watermarked, synthetic data) — use it as the send-ahead with the proposal or the leave-behind after the live demo. It is *not* a recording of the real product; say so if asked.
 
 ---
+
+## The four workspace pages (added 2026-08-20)
+
+The demo now carries four DTE-branded pages in the sidebar's **Hiring**
+section, built as workspace files on vocion-core's workspace-pages mechanism
+(PR #58). **Run with `scripts/dev-pages.sh`, not `dev.sh`** — the pinned core
+predates the mechanism. Seed the back-catalog first:
+`python3 scripts/seed-processed-applicants.py | docker exec -i vocion-postgres psql -U postgres -d vocion_dte`
+
+| Page | Route | Use in the demo |
+|---|---|---|
+| **Hiring Command Center** | `/dashboard/p/command-center` | the NEW Beat 1 opener — 63 applicants, avg score, % qualified, CEO flags, score distribution |
+| **Store Manager Inbox** | `/dashboard/p/store-inbox` | Beat 5 companion — each store's 70+ shortlist with routing, exactly the p.5 manager email as a screen |
+| **Screening Activity** | `/dashboard/p/screening-activity` | after Beat 4 — the live run's read/score/route trail; decisions still in Review |
+| **Agent Registry** | `/dashboard/p/agent-registry` | Beat 8 — the two active coworkers + seven-teaser bench with indicative adds pricing |
+
+These are config + markdown + one custom React widget inside
+`workspace/down-to-earth/pages/` — worth saying out loud to Amy's technical
+reviewer if one appears: *the client's own pages live in the client's own
+workspace folder, versioned like everything else they own.*
 
 ## Beat 1 — Sign in → the portal (proposal p.2, "your hiring, on one screen")
 
