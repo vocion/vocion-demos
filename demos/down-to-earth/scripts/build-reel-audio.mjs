@@ -2,10 +2,12 @@
 /**
  * build-reel-audio.mjs — narration + ambient music bed for the demo reel.
  *
- * Narration: macOS `say` (voice below), one segment per scene, placed at the
- * scene-start offsets of the TL timeline in assets/demo-reel.html — keep the
- * `at` values in sync when scene durations change. Each segment must fit
- * inside its scene (checked; overruns fail the build so they can't ship).
+ * Narration: ElevenLabs when ELEVENLABS_API_KEY is set (in the environment
+ * or the umbrella vocion-local/.env), else macOS `say` as the offline
+ * fallback. One segment per scene, placed at the scene-start offsets of the
+ * TL timeline in assets/demo-reel.html — keep the `at` values in sync when
+ * scene durations change. Each segment must fit inside its scene (checked;
+ * overruns fail the build so they can't ship).
  *
  * Music: a license-free ambient pad synthesized right here (no downloaded
  * assets) — four warm chords cycling with slow crossfades, ducked under the
@@ -15,9 +17,10 @@
  * (invoked by record-reel.mjs; runnable standalone for tuning)
  */
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const [outWav, durationArg] = process.argv.slice(2);
 if (!outWav) {
@@ -25,7 +28,35 @@ if (!outWav) {
   process.exit(1);
 }
 const TOTAL_S = Number(durationArg ?? 180.8);
-const VOICE = 'Samantha'; // download a Premium voice (e.g. "Ava (Premium)") in System Settings → Accessibility → Spoken Content for higher quality, then change this.
+const SAY_VOICE = 'Samantha'; // offline fallback voice
+
+// ElevenLabs config. The key lives in the umbrella vocion-local/.env
+// (gitignored) — never in the repo. Voice: "Rachel", ElevenLabs' standard
+// premade narration voice; override with ELEVEN_VOICE_ID.
+const ELEVEN_VOICE_ID = process.env.ELEVEN_VOICE_ID || '21m00Tcm4TlvDq8ikWAM';
+const ELEVEN_MODEL = process.env.ELEVEN_MODEL || 'eleven_multilingual_v2';
+function elevenKey() {
+  if (process.env.ELEVENLABS_API_KEY) { return process.env.ELEVENLABS_API_KEY; }
+  // demo dir → demos → vocion-demos → vocion-local umbrella
+  const envFile = join(dirname(dirname(fileURLToPath(import.meta.url))), '..', '..', '..', '.env');
+  if (existsSync(envFile)) {
+    const m = readFileSync(envFile, 'utf8').match(/^ELEVENLABS_API_KEY=(.+)$/m);
+    if (m) { return m[1].trim(); }
+  }
+  return null;
+}
+
+async function ttsEleven(key, text, outFile) {
+  const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVEN_VOICE_ID}?output_format=mp3_44100_128`, {
+    method: 'POST',
+    headers: { 'xi-api-key': key, 'content-type': 'application/json' },
+    body: JSON.stringify({ text, model_id: ELEVEN_MODEL }),
+  });
+  if (!res.ok) {
+    throw new Error(`ElevenLabs TTS failed (${res.status}): ${(await res.text()).slice(0, 300)}`);
+  }
+  writeFileSync(outFile, Buffer.from(await res.arrayBuffer()));
+}
 
 // One entry per scene; `at` = scene start (s) + a beat, `maxEnd` = scene end.
 const NARRATION = [
@@ -110,17 +141,26 @@ console.log('synthesizing music bed…');
 synthMusic(musicWav, TOTAL_S);
 
 // ---------- narration segments ----------
-const segs = NARRATION.map((seg, i) => {
-  const f = join(work, `seg${i}.aiff`);
-  execFileSync('say', ['-v', VOICE, '-o', f, seg.text]);
+const key = elevenKey();
+console.log(`narration engine: ${key ? `ElevenLabs (voice ${ELEVEN_VOICE_ID}, ${ELEVEN_MODEL})` : `macOS say (${SAY_VOICE})`}`);
+const segs = [];
+for (const [i, seg] of NARRATION.entries()) {
+  let f;
+  if (key) {
+    f = join(work, `seg${i}.mp3`);
+    await ttsEleven(key, seg.text, f);
+  } else {
+    f = join(work, `seg${i}.aiff`);
+    execFileSync('say', ['-v', SAY_VOICE, '-o', f, seg.text]);
+  }
   const dur = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f]).toString().trim());
   const fits = seg.at + dur <= seg.maxEnd;
   console.log(`  seg${i}: ${dur.toFixed(1)}s at ${seg.at}s (scene ends ${seg.maxEnd}s) ${fits ? 'ok' : 'OVERRUN'}`);
   if (!fits) {
     throw new Error(`narration segment ${i} overruns its scene — shorten the text`);
   }
-  return { ...seg, file: f };
-});
+  segs.push({ ...seg, file: f });
+}
 
 // ---------- mix: VO over sidechain-ducked music, loudness-normalized ----------
 const inputs = ['-i', musicWav];
