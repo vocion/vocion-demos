@@ -73,9 +73,12 @@
   #wm { position: fixed; top: 64px; right: 18px; background: rgba(23,34,27,.78); color: #e9efe9; font-size: 13px;
     padding: 7px 14px; border-radius: 999px; z-index: 50; letter-spacing: .02em; }
 
-  /* cursor (shared across scenes) */
-  #cursor { position: absolute; width: 26px; height: 26px; border-radius: 50%; background: rgba(23,34,27,.28);
-    border: 2.5px solid rgba(23,34,27,.55); z-index: 40; pointer-events: none; opacity: 0; }
+  /* faux mouse pointer (shared, viewport-fixed; left/top = the tip) */
+  #cursor { position: fixed; left: 0; top: 0; width: 30px; height: 34px; z-index: 60;
+    pointer-events: none; opacity: 0; transform-origin: 3px 3px;
+    filter: drop-shadow(0 2px 5px rgba(23,34,27,.35)); }
+  .ripple { position: fixed; width: 42px; height: 42px; margin: -21px 0 0 -21px; border-radius: 50%;
+    border: 3px solid rgba(46,139,87,.75); z-index: 55; pointer-events: none; opacity: 0; }
 
   .btn { border: 1.5px solid var(--line); background: var(--surface); border-radius: 10px; font-size: 15px; padding: 11px 18px; color: var(--ink-2); font-weight: 600; }
   .btn.primary { background: var(--green); border-color: var(--green); color: #fff; }
@@ -517,19 +520,20 @@
 <div id="caption"><span id="cap"></span></div>
 
 <script>
-  // ---------- timeline ----------
+  // ---------- timeline (~151s — keep record-reel DURATION_MS and the
+  // narration offsets in scripts/build-reel-audio.mjs in sync) ----------
   const TL = [
-    { s: 's1', t: 13000, nav: null, cap: 'The Hiring Workforce — two AI coworkers on the Vocion platform, supervised by your team from day one.' },
-    { s: 's2', t: 16000, nav: 'sources', cap: 'Indeed and the website land in one queue — applications keep arriving the way they do today.' },
-    { s: 's3', t: 20000, nav: 'agents', cap: 'The Applicant Screener reads, scores, and explains. The Store Router delivers. Your managers hire.' },
-    { s: 's4', t: 30000, nav: 'applicants', cap: 'An application is read and scored against your written standard — with the reasoning recorded.',
-      cap2: { at: 16000, text: 'Score 88, explained in plain English — threshold 70 passed, routed to the Kailua manager, pending approval.' } },
-    { s: 's5', t: 18000, nav: null, cap: 'No new tool for store managers: the shortlist arrives by email, already scored and explained.' },
-    { s: 's6', t: 24000, nav: 'review', cap: 'Your team approves, adjusts, or declines. The smoking answer is a flag for the CEO — never a rejection.',
-      cap2: { at: 14000, text: 'Below-threshold applicants are held with the reason recorded — visible, recoverable, never auto-rejected.' } },
-    { s: 's7', t: 18000, nav: 'command', cap: 'The command center: what was read, scored, held, and what waits on a person — every store, one screen.' },
-    { s: 's8', t: 17000, nav: 'criteria', cap: 'Your decisions teach the standard — but a proposed change alters nothing until you approve it.' },
-    { s: 's9', t: 15000, nav: 'agents', cap: 'Hiring is the first job, not the last — each new coworker is your decision, at a fixed written price.' },
+    { s: 's1', t: 10000, nav: null, cap: 'The Hiring Workforce — two AI coworkers on the Vocion platform, supervised by your team from day one.' },
+    { s: 's2', t: 13000, nav: 'sources', cap: 'Indeed and the website land in one queue — applications keep arriving the way they do today.' },
+    { s: 's3', t: 16000, nav: 'agents', cap: 'The Applicant Screener reads, scores, and explains. The Store Router delivers. Your managers hire.' },
+    { s: 's4', t: 26000, nav: 'applicants', cap: 'An application is read and scored against your written standard — with the reasoning recorded.',
+      cap2: { at: 13000, text: 'Score 88, explained in plain English — threshold 70 passed, routed to the Kailua manager, pending approval.' } },
+    { s: 's5', t: 15000, nav: null, cap: 'No new tool for store managers: the shortlist arrives by email, already scored and explained.' },
+    { s: 's6', t: 20000, nav: 'review', cap: 'Your team approves, adjusts, or declines. The smoking answer is a flag for the CEO — never a rejection.',
+      cap2: { at: 12000, text: 'Below-threshold applicants are held with the reason recorded — visible, recoverable, never auto-rejected.' } },
+    { s: 's7', t: 15000, nav: 'command', cap: 'The command center: what was read, scored, held, and what waits on a person — every store, one screen.' },
+    { s: 's8', t: 14000, nav: 'criteria', cap: 'Your decisions teach the standard — but a proposed change alters nothing until you approve it.' },
+    { s: 's9', t: 13000, nav: 'agents', cap: 'Hiring is the first job, not the last — each new coworker is your decision, at a fixed written price.' },
     { s: 's10', t: 9000, nav: null, cap: '' },
   ];
 
@@ -539,21 +543,17 @@
   const speed = Number(params.get('speed') || 1);
 
   // ---------- JS tween engine ----------
-  // ALL motion runs off requestAnimationFrame timestamps, never CSS
-  // transitions: the recorder steps a virtual clock frame by frame, which
-  // drives rAF + timers deterministically, while compositor-side CSS
-  // transitions freeze or snap under it. Supported props: opacity, y
-  // (translateY px), scale, left/top (px).
+  // ALL motion runs off performance.now() polled inside rAF callbacks,
+  // never CSS transitions: the recorder steps a virtual clock frame by
+  // frame, which drives timers + performance.now() deterministically,
+  // while compositor-side CSS transitions freeze or snap under it (and
+  // rAF timestamps drift). Supported props: opacity, y, scale, left, top.
   const easeOut = p => 1 - (1 - p) ** 3;
   const easeInOut = p => (p < 0.5 ? 4 * p * p * p : 1 - ((-2 * p + 2) ** 3) / 2);
   const tweens = [];
-  function tween(el, props, { dur = 550, delay = 0, ease = easeOut } = {}) {
+  function tween(el, props, { dur = 450, delay = 0, ease = easeOut } = {}) {
     tweens.push({ el, props, dur: dur / speed, delay: delay / speed, ease, start: null });
   }
-  // The clock is performance.now(), NOT the rAF timestamp: under the
-  // recorder's virtual time, timers and performance.now() follow the
-  // stepped clock exactly, while rAF timestamps drift (they only advance
-  // when frames are produced). rAF here just paces repaints.
   requestAnimationFrame(function loop() {
     const now = performance.now();
     for (let i = tweens.length - 1; i >= 0; i--) {
@@ -576,11 +576,11 @@
     requestAnimationFrame(loop);
   });
 
-  // staggered reveals: .d1–.d6 → delay .5s + .6s per step
+  // staggered reveals: .d1–.d6 → delay .45s + .45s per step (brisk)
   function revealScene(sc) {
     sc.querySelectorAll('.rv').forEach((el) => {
       const d = [...el.classList].find(c => /^d[1-6]$/.test(c));
-      const delay = d ? 500 + 600 * (Number(d[1]) - 1) : 0;
+      const delay = d ? 450 + 450 * (Number(d[1]) - 1) : 0;
       tween(el, { opacity: [0, 1], y: [12, 0] }, { delay });
     });
   }
@@ -590,42 +590,76 @@
   }
   function setCap(text) {
     const el = $('#cap');
-    tween(el, { opacity: [Number(el.style.opacity || 0), 0] }, { dur: 300 });
+    tween(el, { opacity: [Number(el.style.opacity || 0), 0] }, { dur: 250 });
     setTimeout(() => {
       el.textContent = text;
-      if (text) { tween(el, { opacity: [0, 1] }, { dur: 450 }); }
-    }, 350 / speed);
+      if (text) { tween(el, { opacity: [0, 1] }, { dur: 400 }); }
+    }, 280 / speed);
   }
 
-  // cursor drifts to a button, presses, then a callback fires
+  // ---------- faux mouse: pointer arrow + click ripple ----------
+  const cursor = document.createElement('div');
+  cursor.id = 'cursor';
+  cursor.innerHTML = '<svg viewBox="0 0 24 27" width="30" height="34">'
+    + '<path d="M3 2 L3 20.5 L8 16.4 L11.3 24 L14.6 22.5 L11.4 15.1 L17.8 14.4 Z" '
+    + 'fill="#fff" stroke="#17221b" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+  document.body.appendChild(cursor);
+  let curX = 0; let curY = 0; let curShown = false;
+
+  function cursorGlide(x, y, { dur = 850 } = {}) {
+    if (!curShown) {
+      curX = x + 190; curY = y + 130;
+      cursor.style.left = `${curX}px`; cursor.style.top = `${curY}px`;
+      tween(cursor, { opacity: [0, 1] }, { dur: 220 });
+      curShown = true;
+    }
+    tween(cursor, { left: [curX, x], top: [curY, y] }, { dur, ease: easeInOut });
+    curX = x; curY = y;
+  }
+  function cursorPress() {
+    tween(cursor, { scale: [1, 0.8] }, { dur: 100 });
+    tween(cursor, { scale: [0.8, 1] }, { dur: 120, delay: 110 });
+    const r = document.createElement('div');
+    r.className = 'ripple';
+    r.style.left = `${curX + 2}px`; r.style.top = `${curY + 2}px`;
+    document.body.appendChild(r);
+    tween(r, { opacity: [0.85, 0] }, { dur: 450 });
+    tween(r, { scale: [0.35, 1.5] }, { dur: 450 });
+    setTimeout(() => r.remove(), 700 / speed);
+  }
+  function cursorHide() {
+    if (!curShown) { return; }
+    tween(cursor, { opacity: [1, 0] }, { dur: 280 });
+    curShown = false;
+  }
+  function centerOf(el) {
+    const b = el.getBoundingClientRect();
+    return [b.left + b.width / 2, b.top + b.height / 2];
+  }
+  // glide to a button and press it, then a callback fires
   function clickWithCursor(btn, startAt, onPress) {
     const at = (ms, fn) => setTimeout(fn, ms / speed);
     at(startAt, () => {
-      const cur = $('#cursor');
-      const m = $('#main').getBoundingClientRect(); const b = btn.getBoundingClientRect();
-      const x0 = b.left - m.left - 220; const y0 = b.top - m.top + 90;
-      const x1 = b.left - m.left + b.width / 2 - 13; const y1 = b.top - m.top + b.height / 2 - 13;
-      cur.style.left = `${x0}px`; cur.style.top = `${y0}px`;
-      tween(cur, { opacity: [0, 1] }, { dur: 350 });
-      at(400, () => tween(cur, { left: [x0, x1], top: [y0, y1] }, { dur: 1100, ease: easeInOut }));
-      at(1900, () => tween(cur, { scale: [1, 0.75] }, { dur: 140 }));
-      at(2150, () => { tween(cur, { scale: [0.75, 1] }, { dur: 140 }); onPress(); });
-      at(3300, () => tween(cur, { opacity: [1, 0] }, { dur: 350 }));
+      const [x, y] = centerOf(btn);
+      cursorGlide(x, y, { dur: 950 });
+      at(1100, () => { cursorPress(); });
+      at(1250, () => onPress());
+      at(2300, () => cursorHide());
     });
   }
 
   // scene 4 choreography — read → standards → score dial → route
   function runS4() {
     const at = (ms, fn) => setTimeout(fn, ms / speed);
-    at(2500, () => tween($('#st1'), { opacity: [0.28, 1] }, { dur: 450 }));
-    at(4600, () => $('#st1').classList.add('done'));
-    at(5200, () => tween($('#st2'), { opacity: [0.28, 1] }, { dur: 450 }));
-    at(7600, () => $('#st2').classList.add('done'));
-    at(8200, () => {
-      tween($('#scorebox'), { opacity: [0, 1], scale: [0.97, 1] }, { dur: 500 });
+    at(1600, () => tween($('#st1'), { opacity: [0.28, 1] }, { dur: 400 }));
+    at(3200, () => $('#st1').classList.add('done'));
+    at(3700, () => tween($('#st2'), { opacity: [0.28, 1] }, { dur: 400 }));
+    at(5400, () => $('#st2').classList.add('done'));
+    at(6000, () => {
+      tween($('#scorebox'), { opacity: [0, 1], scale: [0.97, 1] }, { dur: 450 });
       // count 0 → 88 + sweep the dial arc, clocked by performance.now()
       // (virtual-time-consistent) with rAF only pacing the repaints.
-      const dur = 2200 / speed;
+      const dur = 1800 / speed;
       const C = 351.9;
       const t0 = performance.now();
       requestAnimationFrame(function tick() {
@@ -637,7 +671,7 @@
         if (p < 1) { requestAnimationFrame(tick); }
       });
     });
-    at(13500, () => tween($('#routeline'), { opacity: [0, 1] }, { dur: 500 }));
+    at(10500, () => tween($('#routeline'), { opacity: [0, 1] }, { dur: 450 }));
   }
 
   function playScene(i) {
@@ -645,33 +679,35 @@
     document.querySelectorAll('.scene').forEach((sc) => {
       if (sc.id === cfg.s) {
         sc.classList.add('on');
-        tween(sc, { opacity: [0, 1], y: [14, 0] }, { dur: 700 });
+        tween(sc, { opacity: [0, 1], y: [14, 0] }, { dur: 550 });
         revealScene(sc);
       } else if (sc.classList.contains('on')) {
         sc.classList.remove('on');
-        tween(sc, { opacity: [1, 0] }, { dur: 400 });
+        tween(sc, { opacity: [1, 0] }, { dur: 320 });
       }
     });
     setNav(cfg.nav);
     setCap(cfg.cap);
     if (cfg.s === 's4') { runS4(); }
-    if (cfg.s === 's6') { clickWithCursor($('#approveBtn'), 6500, () => $('#row1').classList.add('approved')); }
-    if (cfg.s === 's8') { clickWithCursor($('#propApprove'), 7500, () => $('#prop').classList.add('approved')); }
+    if (cfg.s === 's6') { clickWithCursor($('#approveBtn'), 5000, () => $('#row1').classList.add('approved')); }
+    if (cfg.s === 's8') { clickWithCursor($('#propApprove'), 6000, () => $('#prop').classList.add('approved')); }
     if (cfg.cap2) { setTimeout(() => setCap(cfg.cap2.text), cfg.cap2.at / speed); }
   }
 
-  // shared cursor lives in #main so any scene can use it
-  const cursorEl = document.createElement('div');
-  cursorEl.id = 'cursor';
-  $('#main').appendChild(cursorEl);
-
   function startTimeline() {
-    let idx = 0; let elapsed = 0;
-    for (idx = 0; idx < TL.length; idx++) {
-      const i = idx;
+    let elapsed = 0;
+    TL.forEach((cfg, i) => {
+      // the mouse clicks the nav item just before each scene change
+      if (i > 0 && cfg.nav) {
+        const navEl = document.querySelector(`#side a[data-nav="${cfg.nav}"]`);
+        const tGlide = elapsed - 1150;
+        setTimeout(() => { const [x, y] = centerOf(navEl); cursorGlide(x, y); }, tGlide / speed);
+        setTimeout(() => cursorPress(), (elapsed - 140) / speed);
+        setTimeout(() => cursorHide(), (elapsed + 650) / speed);
+      }
       setTimeout(() => playScene(i), elapsed / speed);
-      elapsed += TL[i].t;
-    }
+      elapsed += cfg.t;
+    });
     setTimeout(() => { window.__done = true; }, (elapsed + 800) / speed);
   }
 
