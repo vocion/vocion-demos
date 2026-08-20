@@ -35,7 +35,7 @@ const DEMO_DIR = dirname(dirname(fileURLToPath(import.meta.url)));
 const REEL = pathToFileURL(join(DEMO_DIR, 'assets', 'demo-reel.html')).href;
 const OUT_MP4 = join(DEMO_DIR, 'assets', 'dte-hiring-demo.mp4');
 const FPS = 30;
-const DURATION_MS = 180_000 + 800; // = sum of TL[].t in demo-reel.html + 800ms tail
+const DURATION_MS = 151_000 + 800; // = sum of TL[].t in demo-reel.html + 800ms tail
 const FRAMES = Math.round((DURATION_MS / 1000) * FPS);
 const silent = process.argv.includes('--silent');
 

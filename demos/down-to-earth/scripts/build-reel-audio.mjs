@@ -9,9 +9,12 @@
  * scene durations change. Each segment must fit inside its scene (checked;
  * overruns fail the build so they can't ship).
  *
- * Music: a license-free ambient pad synthesized right here (no downloaded
- * assets) — four warm chords cycling with slow crossfades, ducked under the
- * narration via sidechain compression, loudness-normalized to -16 LUFS.
+ * Music: generated once by the ElevenLabs Music API (upbeat instrumental
+ * bed) and cached at assets/reel-music.mp3 so re-renders spend no credits —
+ * delete the cache or set REEL_MUSIC_REGEN=1 to regenerate. Without a key
+ * (or if the API declines), falls back to a synthesized ambient pad. Either
+ * way the bed is sidechain-ducked under the narration and the mix is
+ * loudness-normalized to -16 LUFS.
  *
  * Usage: node scripts/build-reel-audio.mjs <out.wav> <durationSeconds>
  * (invoked by record-reel.mjs; runnable standalone for tuning)
@@ -50,7 +53,7 @@ async function ttsEleven(key, text, outFile) {
   const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVEN_VOICE_ID}?output_format=mp3_44100_128`, {
     method: 'POST',
     headers: { 'xi-api-key': key, 'content-type': 'application/json' },
-    body: JSON.stringify({ text, model_id: ELEVEN_MODEL }),
+    body: JSON.stringify({ text, model_id: ELEVEN_MODEL, voice_settings: { speed: 1.05 } }),
   });
   if (!res.ok) {
     throw new Error(`ElevenLabs TTS failed (${res.status}): ${(await res.text()).slice(0, 300)}`);
@@ -58,18 +61,36 @@ async function ttsEleven(key, text, outFile) {
   writeFileSync(outFile, Buffer.from(await res.arrayBuffer()));
 }
 
+const MUSIC_CACHE = join(dirname(dirname(fileURLToPath(import.meta.url))), 'assets', 'reel-music.mp3');
+const MUSIC_PROMPT = 'Upbeat, optimistic product-demo background music: bright modern indie-electronic '
+  + 'with warm piano, plucky synths and light percussion, steady drive around 115 BPM, major key, '
+  + 'clean and unobtrusive so a spoken voiceover sits on top. Instrumental only, no vocals, '
+  + 'no big drops, consistent energy, gentle intro, tidy ending.';
+
+async function musicEleven(key, seconds, outFile) {
+  const res = await fetch('https://api.elevenlabs.io/v1/music?output_format=mp3_44100_128', {
+    method: 'POST',
+    headers: { 'xi-api-key': key, 'content-type': 'application/json' },
+    body: JSON.stringify({ prompt: MUSIC_PROMPT, music_length_ms: Math.round(seconds * 1000), model_id: 'music_v1' }),
+  });
+  if (!res.ok) {
+    throw new Error(`ElevenLabs music failed (${res.status}): ${(await res.text()).slice(0, 300)}`);
+  }
+  writeFileSync(outFile, Buffer.from(await res.arrayBuffer()));
+}
+
 // One entry per scene; `at` = scene start (s) + a beat, `maxEnd` = scene end.
 const NARRATION = [
-  { at: 0.8, maxEnd: 12.5, text: 'Meet Down to Earth\'s hiring workforce: two AI coworkers that read, score, and route every applicant — while your managers make every hire.' },
-  { at: 13.6, maxEnd: 28.5, text: 'Applications from Indeed and your website land in one queue. Nothing changes about how people apply, and nothing writes into your systems.' },
-  { at: 29.6, maxEnd: 48.5, text: 'The Applicant Screener reads every application within minutes and scores it against your standard, with guardrails built in. The Store Router delivers qualified candidates to the right manager.' },
-  { at: 49.6, maxEnd: 78.5, text: 'Here is one applicant, end to end. The Screener reads the application, checks your policies, and scores it: an eighty-eight, explained in plain language, with the reasoning recorded. Threshold seventy: passed. The Store Router hands it to the Kailua manager, and a person approves before anything is sent.' },
-  { at: 79.6, maxEnd: 96.5, text: 'Store managers keep email. The shortlist arrives already scored and explained — three candidates instead of eleven raw resumes. The interview, and the hire, stay theirs.' },
-  { at: 97.6, maxEnd: 120.5, text: 'Your team approves, adjusts, or declines. A smoking answer is a flag for the CEO, never a rejection — and below-threshold applicants are held with the reason recorded. Nothing is ever auto-rejected.' },
-  { at: 121.6, maxEnd: 138.5, text: 'Corporate sees every store on one screen: what was read, what was scored, what is waiting on a person, and what was held.' },
-  { at: 139.6, maxEnd: 155.5, text: 'Every decision teaches the standard. When a pattern has enough evidence, the system proposes a change in plain language — and nothing changes until you approve it.' },
-  { at: 156.6, maxEnd: 170.5, text: 'Hiring is the first job, not the last. New coworkers join only when you say so, at a fixed written price.' },
-  { at: 171.6, maxEnd: 180.3, text: 'Fifteen hundred dollars a month, all in. Live in about two weeks. Down to Earth, and Metacto.' },
+  { at: 0.7, maxEnd: 9.6, text: 'Meet your hiring workforce: two AI coworkers read, score, and route every applicant. Your managers hire.' },
+  { at: 10.6, maxEnd: 22.5, text: 'Indeed and your website land in one queue. Applicants apply the way they always have — and nothing writes into your systems.' },
+  { at: 23.6, maxEnd: 38.5, text: 'The Applicant Screener reads and scores every application against your standard. The Store Router delivers qualified candidates to the right manager.' },
+  { at: 39.6, maxEnd: 64.5, text: 'One applicant, end to end. The Screener reads the application, checks your policies, and scores it — an eighty-eight, explained in plain language. Threshold seventy: passed. The Router hands it to the Kailua manager, and a person approves before anything sends.' },
+  { at: 65.5, maxEnd: 79.5, text: 'Managers keep email. The shortlist arrives scored and explained — three candidates instead of eleven resumes. The hire stays theirs.' },
+  { at: 80.6, maxEnd: 99.5, text: 'Your team approves, adjusts, or declines. A smoking answer is a flag for the CEO — never a rejection. Below-threshold applicants are held, with the reason recorded.' },
+  { at: 100.6, maxEnd: 114.5, text: 'Corporate sees every store on one screen — what was read, what was scored, and what is waiting on a person.' },
+  { at: 115.6, maxEnd: 128.5, text: 'Every decision teaches the standard — and nothing changes until you approve it.' },
+  { at: 129.5, maxEnd: 141.5, text: 'Hiring is the first job, not the last. New coworkers join only when you say so, at a fixed written price.' },
+  { at: 142.5, maxEnd: 150.5, text: 'Fifteen hundred a month, all in. Live in about two weeks. Down to Earth, and Metacto.' },
 ];
 
 const work = mkdtempSync(join(tmpdir(), 'dte-audio-'));
@@ -136,12 +157,29 @@ function synthMusic(path, seconds) {
   writeFileSync(path, buf);
 }
 
-const musicWav = join(work, 'music.wav');
-console.log('synthesizing music bed…');
-synthMusic(musicWav, TOTAL_S);
+// ---------- music bed ----------
+const key = elevenKey();
+let musicFile;
+if (key && existsSync(MUSIC_CACHE) && !process.env.REEL_MUSIC_REGEN) {
+  musicFile = MUSIC_CACHE;
+  console.log(`music: cached ${MUSIC_CACHE}`);
+} else if (key) {
+  try {
+    console.log('music: generating via ElevenLabs Music…');
+    await musicEleven(key, TOTAL_S, MUSIC_CACHE);
+    musicFile = MUSIC_CACHE;
+    console.log(`music: wrote ${MUSIC_CACHE}`);
+  } catch (err) {
+    console.warn(`music: ${err.message} — falling back to synth pad`);
+  }
+}
+if (!musicFile) {
+  musicFile = join(work, 'music.wav');
+  console.log('music: synthesizing fallback pad…');
+  synthMusic(musicFile, TOTAL_S);
+}
 
 // ---------- narration segments ----------
-const key = elevenKey();
 console.log(`narration engine: ${key ? `ElevenLabs (voice ${ELEVEN_VOICE_ID}, ${ELEVEN_MODEL})` : `macOS say (${SAY_VOICE})`}`);
 const segs = [];
 for (const [i, seg] of NARRATION.entries()) {
@@ -163,7 +201,7 @@ for (const [i, seg] of NARRATION.entries()) {
 }
 
 // ---------- mix: VO over sidechain-ducked music, loudness-normalized ----------
-const inputs = ['-i', musicWav];
+const inputs = ['-i', musicFile];
 segs.forEach(s => inputs.push('-i', s.file));
 const voChains = segs.map((s, i) =>
   `[${i + 1}:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=${Math.round(s.at * 1000)}:all=1[v${i}]`,
@@ -173,7 +211,7 @@ const graph = [
   voChains,
   `${voMix}amix=inputs=${segs.length}:duration=longest:normalize=0,apad[vo]`,
   `[vo]asplit[voa][vob]`,
-  `[0:a]volume=0.3[m]`,
+  `[0:a]aformat=sample_rates=44100:channel_layouts=stereo,apad,volume=0.35[m]`,
   `[m][voa]sidechaincompress=threshold=0.02:ratio=8:attack=200:release=900[duck]`,
   `[duck][vob]amix=inputs=2:duration=first:normalize=0[mix]`,
   `[mix]loudnorm=I=-16:TP=-1.5:LRA=11,atrim=0:${TOTAL_S},asetpts=PTS-STARTPTS[out]`,
