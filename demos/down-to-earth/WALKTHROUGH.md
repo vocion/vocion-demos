@@ -20,18 +20,27 @@ predates the mechanism. Seed the back-catalog first:
 |---|---|---|
 | **Hiring Command Center** | `/dashboard/p/command-center` | the NEW Beat 1 opener — 63 applicants, avg score, % qualified, CEO flags, score distribution |
 | **Store Manager Inbox** | `/dashboard/p/store-inbox` | Beat 5 companion — each store's 70+ shortlist with routing, exactly the p.5 manager email as a screen |
-| **Screening Activity** | `/dashboard/p/screening-activity` | after Beat 4 — the full trail (with core thumbs-up/down feedback on runs) **plus the embedded core Review queue**, scoped to hiring: approve/decline here or in Review, one queue |
+| **Screening Activity** | `/dashboard/p/screening-activity` | after Beat 4 — the full trail (with core thumbs-up/down feedback on runs) **plus the embedded core Review queue including paused workflow runs**: approve/decline here or in Review, one queue |
 | **Agent Registry** | `/dashboard/p/agent-registry` | Beat 8 — live core agent records (2 active + 7 bench); no pricing on the page by design |
 
 These are config + markdown + one custom React widget inside
 `workspace/down-to-earth/pages/` — worth saying out loud to Amy's technical
 reviewer if one appears: *the client's own pages live in the client's own
 workspace folder, versioned like everything else they own.* Every applicant
-row **clicks through to the core record** (`/dashboard/objects/<id>`), the
-review items are **core Review items** embedded and scoped (never a parallel
-queue), and run feedback is core `skill_run` ratings.
+row **clicks through to the core record** (`/dashboard/objects/<id>`), which
+now carries an **Agent activity panel**: every run that touched the record
+with its written rationale, feedback, the owning agent — and any pending
+decision approvable right there, through the same core queue. Review items
+are **core Review items** everywhere (never a parallel queue); run feedback
+is core `skill_run` ratings. Seed data includes four deliberate edge cases —
+an overqualified ex-store-manager, a weekday/weekend scheduling conflict, a
+68 near-miss, and a duplicate application merged rather than double-routed —
+and arrivals spread over ~30 days.
 
-**The in-app guided tour** (`pages/tour.yaml`, 13 steps): the floating
+**The in-app guided tour** (`pages/tour.yaml`, **9 steps** — the proposal
+narrative: arrive → click the record → the two coworkers → run one live →
+the human gate → the manager inbox → feedback becomes a learning → the
+bench): the floating
 **▸ Guided demo** button or any dashboard URL + `?tour=1`. Spotlight mask
 keeps the audience on rails; two steps are interactive (click into Marisol's
 record; click a store-inbox name); Esc always exits. Seed the trail first:
