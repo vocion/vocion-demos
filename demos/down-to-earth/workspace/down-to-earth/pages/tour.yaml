@@ -37,7 +37,8 @@ steps:
 
   - route: /dashboard/objects
     routePrefix: true
-    placement: center
+    selector: "main > div.flex-1"
+    placement: bottom
     title: The applicant record
     body: >-
       This is the record behind the row — the same object the coworkers read and
@@ -45,7 +46,8 @@ steps:
       without a paper trail.
 
   - route: /dashboard/sources
-    placement: center
+    selector: "main > div.flex-1"
+    placement: bottom
     title: Both channels, one queue
     body: >-
       Indeed and the website Careers page, connected. Nothing changes about how
@@ -53,7 +55,8 @@ steps:
       trigger on hire; Trackstar has no connection of any kind, on purpose.
 
   - route: /dashboard/agents
-    placement: center
+    selector: "main > div.flex-1"
+    placement: bottom
     title: The two AI coworkers
     body: >-
       The Applicant Screener reads, scores, and explains every application. The
@@ -62,7 +65,8 @@ steps:
       governed, versioned playbooks, applied the same way in every store.
 
   - route: /dashboard/workflows
-    placement: center
+    selector: "main > div.flex-1"
+    placement: bottom
     title: "Run one live: Applicant Intake"
     body: >-
       Marisol Torres — Deli Clerk, Kailua. Watch it read the application, score
@@ -88,7 +92,8 @@ steps:
       routing is sitting in it right now.
 
   - route: /dashboard/review
-    placement: center
+    selector: "main > div.flex-1"
+    placement: bottom
     title: The human gate
     body: >-
       The same items, in the operator's focus view — approve, adjust, or
@@ -106,7 +111,8 @@ steps:
       just says the CEO decides. Click any name to open the record.
 
   - route: /dashboard/learnings
-    placement: center
+    selector: "main > div.flex-1"
+    placement: bottom
     title: The standard learns — with approval
     body: >-
       That thumbs-up on shift work you saw in the trail? When a pattern has
