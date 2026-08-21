@@ -10,6 +10,7 @@ archetype: list
 source: { kind: objects, objectType: applicant }
 filters:
   - { field: meta.score, op: gte, value: 70 }
+  - { field: status, op: neq, value: duplicate }
 groupBy: meta.store
 sort: { field: meta.score, dir: desc }
 fields:

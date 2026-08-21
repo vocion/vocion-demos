@@ -9,8 +9,12 @@ nav: { section: Hiring, order: 3 }
 archetype: queue
 source:
   kind: skillRuns
-  skills: [review_application, score_candidate, route_candidate]
+  skills: [review_application, score_candidate, route_candidate, draft_candidate_followup]
   limit: 100
+review:
+  skills: [review_application, score_candidate, route_candidate, draft_candidate_followup]
+  workflows: true
+  heading: Waiting on a person
 sort: { field: createdAt, dir: desc }
 fields:
   - { key: title, label: Run, from: title }

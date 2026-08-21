@@ -31,6 +31,7 @@ MANAGERS = {
 }
 CURATED = {"APP-IN-041": 88, "APP-IN-042": 81, "APP-IN-043": 74}
 PENDING_ROUTE = {"APP-IN-041", "APP-IN-042"}  # waiting in Review for the demo
+PENDING_FOLLOWUP = {"APP-IN-006"}  # missing-info draft waiting for approval
 
 FEEDBACK = {  # core skill_run.rating / feedback_note — the learning loop's raw material
     "APP-IN-041": ("up", "Exactly right — the deli counter history is what we hire for."),
@@ -74,7 +75,7 @@ def score(a):
 
 # the trail covers the ten strongest applicants + all curated
 picks = sorted(apps.values(), key=score, reverse=True)[:10]
-for cid in list(CURATED) + list(FEEDBACK):
+for cid in list(CURATED) + list(FEEDBACK) + list(PENDING_FOLLOWUP):
     if cid in apps and all(p["id"] != cid for p in picks):
         picks.append(apps[cid])
 
@@ -102,7 +103,7 @@ for a in picks:
 
     reviewed = "reviewed_by, reviewed_at", f"'dte@example.com', {ts} + interval '2 hours'"
 
-    run("review_application", {"title": f"{name} — application intake", "applicant": aid},
+    run("review_application", {"title": f"{name} — application intake", "applicant": aid, "objectRef": aid},
         json.dumps({"applicant": aid, "profile": f"{name}: {a.get('role_applied')} · {store.title()} · {a.get('availability') or 'availability not stated'}", "plant_based_ack": a.get("plant_based_ack"), "smokes_or_vapes": a.get("smokes_or_vapes")}),
         "approved", *reviewed)
 
@@ -113,7 +114,7 @@ for a in picks:
         "INSERT INTO skill_run (org_id, project_id, skill_id, input, output, status, confidence, created_by, created_at, reviewed_by, reviewed_at"
         + fb_cols
         + f") SELECT '{ORG}', '{ORG}', s.id, '{esc(json.dumps({'title': f'{name} — score', 'applicant': aid}))}'::jsonb, "
-        + f"'{esc(json.dumps({'applicant': aid, 'score': n, 'band': 'strong' if n >= 85 else 'qualified' if n >= 70 else 'near-miss', 'why': f'{n}/100 — experience and availability weighed per the scoring rubric; policy answers recorded, nothing auto-rejected.'}))}', "
+        + f"'{esc(json.dumps({'applicant': aid, 'score': n, 'band': 'strong' if n >= 85 else 'qualified' if n >= 70 else 'near-miss', 'why': f"{n}/100. Experience and availability weighed per the scoring rubric — job-related criteria only, identical at every store. " + ("Routed to the store manager with the reasoning attached." if n >= 70 else "Held below threshold with this reasoning recorded; any reviewer can reopen it.") + " Policy answers recorded; nothing is ever auto-rejected." }))}', "
         + f"'approved', 'confident', 'seed:screening', {ts} + interval '10 minutes', 'dte@example.com', {ts} + interval '2 hours'"
         + fb_vals
         + f" FROM skill s WHERE s.org_id='{ORG}' AND s.slug='score_candidate';"
@@ -122,8 +123,22 @@ for a in picks:
     if n >= 70:
         route_out = json.dumps({"applicant": aid, "routed_to": f"{mgr} · {store.title()}", "email_draft": f"Shortlist: {name} ({n}/100) for {a.get('role_applied')} — full scoring rationale attached. Reply to schedule."})
         if aid in PENDING_ROUTE:
-            run("route_candidate", {"title": f"{name} — route to {store.title()}", "applicant": aid}, route_out, "pending")
+            run("route_candidate", {"title": f"{name} — route to {store.title()}", "applicant": aid, "objectRef": aid}, route_out, "pending")
         else:
-            run("route_candidate", {"title": f"{name} — route to {store.title()}", "applicant": aid}, route_out, "approved", *reviewed)
+            run("route_candidate", {"title": f"{name} — route to {store.title()}", "applicant": aid, "objectRef": aid}, route_out, "approved", *reviewed)
+    if aid in PENDING_FOLLOWUP:
+        fu_out = json.dumps({"applicant": aid, "email_draft": f"Hi {name.split()[0]} — thanks for applying to Down to Earth. One thing missing before we can route you: your availability (days/evenings/weekends). Reply to this email and we'll pick your application right back up."})
+        run("draft_candidate_followup", {"title": f"{name} — availability follow-up", "applicant": aid, "objectRef": aid}, fu_out, "pending")
+
+# One PAUSED workflow run — Applicant Intake stopped at its approve step —
+# so workflow-run review (review.workflows: true) has a live item.
+print(f"""DELETE FROM workflow_run WHERE org_id='{ORG}' AND created_by='seed:screening';
+INSERT INTO workflow_run (org_id, project_id, workflow_id, input, status, current_step, pause_reason, step_results, created_by, created_at, updated_at)
+SELECT '{ORG}', '{ORG}', w.id,
+  '{{"title": "Jonah Silva — applicant intake", "objectRef": "APP-IN-043", "body": "Application via Indeed for Deli Clerk — Kailua."}}'::jsonb,
+  'paused', 3, 'approve step: routing to L. Fonoti · Kailua awaits a person',
+  '{{"1": {{"status": "completed", "output": "profile extracted"}}, "2": {{"status": "completed", "output": "scored 74/100"}}, "3": {{"status": "paused"}}}}'::jsonb,
+  'seed:screening', now() - interval '1 day 3 hours', now()
+FROM workflow w WHERE w.org_id='{ORG}' AND w.slug='applicant_intake';""")
 
 print("COMMIT;")
