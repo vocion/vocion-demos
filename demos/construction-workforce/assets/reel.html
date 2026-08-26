@@ -1,0 +1,890 @@
+<!-- Metacto · Construction AI Workforce — booth reel source.
+     Self-contained, auto-plays a 304s timeline at a fixed 1920×1080 stage
+     (recorded at deviceScaleFactor 2 → 3840×2160 by scripts/record-reel.mjs).
+     Hub-and-spoke structure for a looping booth screen: a recurring roster
+     board alternating with six end-to-end agent stories, two proof beats
+     (Alliant = real, Morris Shea = in-development stub), scorecard, growth,
+     CTA — then a static hub tail so the last frame equals frame 0 (seamless
+     loop). All jobs, people, and numbers are synthetic except the Alliant
+     beat, which announces itself. Color law: amber = waiting on a human,
+     green = a person approved it. Debug one scene with ?scene=N&hold=1 -->
+<meta charset="utf-8">
+<title>Metacto — Construction AI Workforce reel</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0e1316;
+    --bg-2: #131a1e;
+    --surface: #1a2227;
+    --surface-2: #202a30;
+    --line: #2b363d;
+    --ink: #e9eef1;
+    --ink-2: #9fadb5;
+    --ink-3: #64737c;
+    --brand: #ff7a29;          /* Metacto accent — chrome + emphasis only */
+    --amber: #ffb020;          /* waiting on a human */
+    --amber-bg: #33270e;
+    --green: #3ecf8e;          /* a person approved it */
+    --green-bg: #10291e;
+    --red: #ff6b6b;
+    --radius: 14px;
+    --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg);
+    font-family: -apple-system, "SF Pro Text", "Segoe UI", Inter, Roboto, sans-serif; color: var(--ink);
+    -webkit-font-smoothing: antialiased; }
+
+  /* ---------------- persistent chrome ---------------- */
+  #topbar { position: fixed; top: 0; left: 0; right: 0; height: 64px; z-index: 40;
+    display: flex; align-items: center; padding: 0 40px; gap: 18px;
+    background: linear-gradient(180deg, rgba(10,14,16,.92), rgba(10,14,16,.75)); border-bottom: 1px solid var(--line); }
+  #topbar .logo { font-weight: 800; font-size: 23px; letter-spacing: .16em; }
+  #topbar .logo b { color: var(--brand); }
+  #topbar .divider { width: 1px; height: 26px; background: var(--line); }
+  #topbar .label { font-size: 14.5px; letter-spacing: .22em; color: var(--ink-2); text-transform: uppercase; }
+  #topbar .spacer { flex: 1; }
+  #wm { font-size: 13.5px; padding: 7px 15px; border-radius: 999px; letter-spacing: .03em;
+    background: rgba(233,238,241,.07); color: var(--ink-2); border: 1px solid var(--line); }
+  #wm.real { background: rgba(62,207,142,.12); color: var(--green); border-color: rgba(62,207,142,.4); font-weight: 700; }
+  #wm.dev { background: rgba(255,176,32,.1); color: var(--amber); border-color: rgba(255,176,32,.4); font-weight: 700; }
+
+  #capbar { position: fixed; left: 0; right: 0; bottom: 44px; height: 84px; z-index: 40;
+    display: flex; align-items: center; justify-content: center; padding: 0 160px; text-align: center;
+    background: linear-gradient(0deg, rgba(10,14,16,.94), rgba(10,14,16,.7)); }
+  #cap { font-size: 27px; letter-spacing: .01em; color: var(--ink); opacity: 0; line-height: 1.3; }
+  #cap b { color: var(--brand); font-weight: 750; }
+
+  #spine { position: fixed; left: 0; right: 0; bottom: 0; height: 44px; z-index: 40;
+    display: flex; align-items: center; justify-content: center; gap: 26px;
+    background: #0a0e10; border-top: 1px solid var(--line);
+    font-size: 15px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  #spine .step { display: flex; align-items: center; gap: 10px; font-weight: 650; transition: none; }
+  #spine .step i { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); display: inline-block; }
+  #spine .step.on { color: var(--ink); }
+  #spine .step.on i { background: var(--brand); }
+  #spine .arrow { color: var(--ink-3); font-size: 16px; }
+
+  /* the human-gate badge — pulses in whenever an agent stops for a person */
+  #gate { position: fixed; top: 82px; right: 40px; z-index: 45; opacity: 0;
+    background: var(--amber-bg); color: var(--amber); border: 1.5px solid rgba(255,176,32,.55);
+    font-size: 17px; font-weight: 750; letter-spacing: .04em; padding: 11px 26px; border-radius: 999px; }
+
+  #main { position: fixed; top: 64px; bottom: 128px; left: 0; right: 0; overflow: hidden; }
+  .scene { position: absolute; inset: 0; padding: 42px 90px; opacity: 0; }
+  .kicker { font-size: 15px; letter-spacing: .2em; text-transform: uppercase; color: var(--brand); font-weight: 750; margin-bottom: 10px; }
+  h1 { font-size: 40px; font-weight: 780; letter-spacing: -.01em; line-height: 1.14; }
+  .sub { font-size: 20px; color: var(--ink-2); margin-top: 10px; line-height: 1.45; }
+  .rv { opacity: 0; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+  .num { font-variant-numeric: tabular-nums; }
+
+  .chip { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700;
+    padding: 7px 15px; border-radius: 999px; letter-spacing: .02em; white-space: nowrap; }
+  .chip.run   { background: rgba(159,173,181,.12); color: var(--ink-2); }
+  .chip.amber { background: var(--amber-bg); color: var(--amber); }
+  .chip.green { background: var(--green-bg); color: var(--green); }
+  .chip i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; display: inline-block; }
+
+  /* ---------------- hub board (s0 / s5 / s8 / s15) ---------------- */
+  .board { max-width: 1560px; margin: 0 auto; }
+  .board .hd { display: flex; align-items: baseline; gap: 20px; margin-bottom: 24px; }
+  .board .hd h1 { font-size: 34px; letter-spacing: .04em; }
+  .board .hd .count { font-size: 21px; color: var(--green); font-weight: 750; }
+  .board .hd .count i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--green); margin-right: 9px; }
+  .brow { display: flex; align-items: center; gap: 26px; padding: 21px 30px; margin-bottom: 13px; }
+  .brow .nm { flex: 0 0 340px; font-size: 24px; font-weight: 750; }
+  .brow .tk { flex: 1; font-size: 20px; color: var(--ink-2); }
+  .brow .tk b { color: var(--ink); font-weight: 650; }
+  .brow.hot { border-color: rgba(255,176,32,.5); }
+  .brow.ok { border-color: rgba(62,207,142,.45); }
+
+  /* ---------------- s1 drag counters ---------------- */
+  .drags { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 1460px; margin: 44px auto 0; }
+  .drag { padding: 34px 38px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  .drag .l { font-size: 23px; color: var(--ink-2); line-height: 1.35; max-width: 480px; }
+  .drag .v { font-size: 64px; font-weight: 800; color: var(--amber); }
+  .drag .v small { font-size: 26px; color: var(--ink-3); font-weight: 650; margin-left: 8px; }
+
+  /* ---------------- spoke shared ---------------- */
+  .spoke-hd { display: flex; align-items: center; gap: 18px; margin-bottom: 22px; }
+  .spoke-hd .agent { font-size: 30px; font-weight: 800; }
+  .spoke-hd .job { font-size: 17px; color: var(--ink-3); letter-spacing: .06em; }
+  .stage2 { display: grid; grid-template-columns: 620px 1fr; gap: 30px; max-width: 1660px; margin: 0 auto; }
+
+  .event { padding: 24px 26px; }
+  .event .ts { font-family: var(--mono); font-size: 15px; color: var(--brand); letter-spacing: .05em; margin-bottom: 12px; }
+  .event .photo { height: 250px; border-radius: 10px; position: relative; overflow: hidden;
+    background: linear-gradient(160deg, #3a3f42 0%, #24282b 55%, #17191b 100%); }
+  .event .photo .slab { position: absolute; left: 0; right: 0; bottom: 0; height: 42%;
+    background: linear-gradient(180deg, #565b5e, #45494c); }
+  .event .photo .edge { position: absolute; left: 8%; right: 30%; bottom: 42%; height: 5px; background: #6f7477; transform: rotate(-1.6deg); }
+  .event .photo .mark { position: absolute; left: 52%; bottom: 30%; width: 130px; height: 110px;
+    border: 4px solid var(--red); border-radius: 50%; }
+  .event .photo .exif { position: absolute; right: 12px; bottom: 10px; font-family: var(--mono); font-size: 12.5px; color: rgba(233,238,241,.55); }
+  .event .note { font-size: 21px; margin-top: 16px; line-height: 1.4; }
+  .event .note b { color: var(--amber); }
+
+  .evs { display: flex; flex-direction: column; gap: 13px; }
+  .ev { padding: 16px 22px; display: flex; align-items: center; gap: 16px; }
+  .ev .tag { font-family: var(--mono); font-size: 13.5px; color: var(--brand); letter-spacing: .04em; flex: 0 0 210px; }
+  .ev .tt { font-size: 18.5px; }
+  .ev .tt s { color: var(--ink-3); }
+  .ev .tt em { font-style: normal; color: var(--amber); font-weight: 700; font-size: 14px; margin-left: 10px; letter-spacing: .06em; }
+
+  .draft { padding: 26px 30px; }
+  .draft .dhd, .check .dhd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .draft .dhd .t { font-size: 21px; font-weight: 750; letter-spacing: .02em; }
+  .dline { display: flex; align-items: baseline; gap: 14px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .dline .k { flex: 0 0 150px; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+  .dline .v { flex: 1; font-size: 18.5px; line-height: 1.45; color: var(--ink); }
+  .dline .src { font-family: var(--mono); font-size: 12px; color: var(--green); background: var(--green-bg);
+    padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
+  .dline .v .strike { text-decoration: line-through; color: var(--ink-3); }
+  .dline .v .fix { color: var(--brand); font-weight: 700; }
+  .draft .actions { display: flex; gap: 14px; margin-top: 22px; align-items: center; }
+  .btn { border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 10px;
+    font-size: 17px; padding: 12px 26px; color: var(--ink-2); font-weight: 700; }
+  .btn.primary { background: var(--green); border-color: var(--green); color: #06130c; }
+  .issued { font-size: 17px; color: var(--green); font-weight: 750; opacity: 0; }
+
+  .metric { display: flex; gap: 26px; margin-top: 26px; max-width: 1660px; margin-left: auto; margin-right: auto; }
+  .metric .m { flex: 1; padding: 26px 32px; }
+  .metric .m .k { font-size: 15.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+  .metric .m .v { font-size: 52px; font-weight: 800; margin-top: 6px; }
+  .metric .m .v.good { color: var(--green); }
+  .metric .m .v.base { color: var(--ink-3); }
+  .metric .m .v small { font-size: 22px; color: var(--ink-3); font-weight: 650; }
+  .metric .m .note { font-size: 17px; color: var(--ink-2); margin-top: 6px; }
+
+  /* ---------------- s3 built-for-you ---------------- */
+  #s3 .zoom { max-width: 1240px; margin: 30px auto 0; padding: 30px 38px; }
+  #s3 .zoom .lbl { font-size: 15px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; margin-bottom: 12px; }
+  #s3 .zoom .line { font-size: 30px; line-height: 1.4; }
+  #s3 .zoom .line s { color: var(--ink-3); }
+  #s3 .zoom .line b { color: var(--brand); }
+  #s3 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; max-width: 1240px; margin: 26px auto 0; }
+  #s3 .out { padding: 26px 30px; }
+  #s3 .out .k { font-size: 14.5px; letter-spacing: .14em; text-transform: uppercase; font-weight: 750; margin-bottom: 10px; }
+  #s3 .out.std .k { color: var(--green); }
+  #s3 .out.evc .k { color: var(--brand); }
+  #s3 .out .b { font-size: 20px; line-height: 1.45; }
+  #s3 .out .b code { font-family: var(--mono); font-size: 16.5px; color: var(--ink-2); }
+  #s3 .punch { text-align: center; font-size: 31px; font-weight: 780; margin-top: 34px; line-height: 1.35; }
+  #s3 .punch b { color: var(--brand); }
+
+  /* ---------------- s4 change tracker ---------------- */
+  .check { padding: 24px 30px; }
+  .ci { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px dashed var(--line); font-size: 19.5px; }
+  .ci .box { width: 26px; height: 26px; border-radius: 7px; border: 2px solid var(--ink-3); flex: 0 0 26px;
+    display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: transparent; }
+  .ci.done .box { background: var(--green); border-color: var(--green); color: #06130c; }
+  .ci.miss .box { background: var(--amber-bg); border-color: var(--amber); color: var(--amber); }
+  .ci .lbl { flex: 1; }
+  .ci .own { font-size: 14.5px; font-weight: 750; color: var(--amber); background: var(--amber-bg); padding: 5px 13px; border-radius: 999px; opacity: 0; }
+  .gatecard { margin-top: 22px; padding: 20px 26px; border: 1.5px solid rgba(255,176,32,.5); border-radius: var(--radius);
+    background: var(--amber-bg); font-size: 20px; color: var(--amber); font-weight: 700; display: flex; gap: 14px; align-items: center; }
+  .gatecard small { color: var(--ink-2); font-weight: 500; font-size: 17px; }
+
+  /* ---------------- s6 pay app ---------------- */
+  .recon { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; max-width: 1660px; margin: 0 auto; }
+  .rcol { padding: 18px; }
+  .rcol .t { font-size: 15.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); font-weight: 750; margin-bottom: 14px; text-align: center; }
+  .rcell { height: 30px; border-radius: 7px; background: var(--surface-2); margin-bottom: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: transparent; }
+  .rcell.ok { background: var(--green-bg); color: var(--green); }
+  .rcell.ex { background: var(--amber-bg); color: var(--amber); }
+  .exlist { max-width: 1300px; margin: 18px auto 0; padding: 16px 30px; }
+  .exlist .t { font-size: 17px; letter-spacing: .12em; text-transform: uppercase; color: var(--amber); font-weight: 780; margin-bottom: 10px; }
+  .exrow { display: flex; align-items: center; gap: 18px; padding: 9px 0; border-bottom: 1px dashed var(--line); font-size: 19px; }
+  .exrow .st { flex: 0 0 30px; text-align: center; font-weight: 800; color: var(--amber); }
+  .exrow.clear .st { color: var(--green); }
+  .exrow.clear .lbl { color: var(--ink-3); text-decoration: line-through; }
+  .exrow .lbl { flex: 1; }
+  .exrow .own { font-size: 14.5px; font-weight: 750; color: var(--ink-2); background: var(--surface-2); padding: 5px 13px; border-radius: 999px; }
+
+  /* ---------------- s7 submittal ---------------- */
+  .subgrid { display: grid; grid-template-columns: 560px 1fr; gap: 30px; max-width: 1660px; margin: 0 auto; }
+  .upload { padding: 24px 28px; }
+  .upload .file { display: flex; align-items: center; gap: 14px; padding: 13px 0; border-bottom: 1px dashed var(--line); font-size: 18px; }
+  .upload .file .ic { font-family: var(--mono); font-size: 12px; color: var(--ink-3); background: var(--surface-2); padding: 4px 8px; border-radius: 5px; }
+
+  /* ---------------- s9 closeout ---------------- */
+  .cograph { display: flex; align-items: center; gap: 40px; max-width: 1560px; margin: 10px auto 0; }
+  .cobig { flex: 0 0 420px; padding: 34px; text-align: center; }
+  .cobig .k { font-size: 16px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+  .cobig .v { font-size: 110px; font-weight: 800; color: var(--amber); line-height: 1.05; }
+  .cobig .v.ok { color: var(--green); }
+  .cobig .n { font-size: 17px; color: var(--ink-2); margin-top: 4px; }
+  .colist { flex: 1; }
+
+  /* ---------------- proof scenes ---------------- */
+  .proof { text-align: center; max-width: 1500px; margin: 0 auto; }
+  .proof .who { font-size: 17px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-2); font-weight: 750; }
+  .proof h1 { font-size: 42px; margin-top: 14px; }
+  .bignums { display: flex; gap: 26px; margin-top: 44px; }
+  .bignums .bn { flex: 1; padding: 40px 24px; }
+  .bignums .bn .v { font-size: 88px; font-weight: 800; color: var(--green); }
+  .bignums .bn .v.brand { color: var(--brand); }
+  .bignums .bn .k { font-size: 19px; color: var(--ink-2); margin-top: 10px; line-height: 1.4; }
+  .proof .foot { font-size: 23px; color: var(--ink); margin-top: 38px; line-height: 1.45; }
+  .proof .foot b { color: var(--green); }
+
+  /* morris shea flow */
+  .flow { display: flex; align-items: stretch; gap: 0; max-width: 1560px; margin: 40px auto 0; }
+  .fnode { flex: 1; padding: 26px 22px; text-align: center; }
+  .fnode .t { font-size: 20px; font-weight: 750; }
+  .fnode .d { font-size: 15.5px; color: var(--ink-2); margin-top: 8px; line-height: 1.4; }
+  .fnode.gate { border-color: rgba(255,176,32,.5); background: var(--amber-bg); }
+  .fnode.gate .t { color: var(--amber); }
+  .farrow { flex: 0 0 56px; display: flex; align-items: center; justify-content: center; font-size: 30px; color: var(--ink-3); }
+  .devnote { max-width: 1560px; margin: 30px auto 0; text-align: center; font-size: 20px; color: var(--ink-2); line-height: 1.5; }
+  .devnote b { color: var(--amber); }
+
+  /* ---------------- s12 scorecard ---------------- */
+  .score { display: grid; grid-template-columns: repeat(5, 1fr); gap: 22px; max-width: 1660px; margin: 34px auto 0; }
+  .score .sc { padding: 28px 22px; text-align: center; }
+  .score .sc .v { font-size: 58px; font-weight: 800; color: var(--green); }
+  .score .sc .v.n2 { color: var(--ink); }
+  .score .sc .k { font-size: 16px; color: var(--ink-2); margin-top: 8px; line-height: 1.35; }
+  .corrline { text-align: center; font-size: 27px; margin-top: 40px; font-weight: 700; }
+  .corrline b { color: var(--brand); }
+
+  /* ---------------- s13 org chart ---------------- */
+  .org { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; max-width: 1720px; margin: 24px auto 0; }
+  .lane .lt { font-size: 14px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); font-weight: 780;
+    text-align: center; margin-bottom: 14px; }
+  .anode { padding: 15px 14px; text-align: center; font-size: 17.5px; font-weight: 700; margin-bottom: 11px;
+    border: 1px solid var(--line); border-radius: 11px; background: var(--surface); }
+  .anode.live { border-color: rgba(62,207,142,.5); }
+  .anode.live::after { content: "●"; color: var(--green); font-size: 11px; margin-left: 8px; vertical-align: 2px; }
+  .anode.bench { color: var(--ink-3); border-style: dashed; }
+  .anode.bench.lit { color: var(--ink); border-color: rgba(255,122,41,.55); border-style: solid; }
+  .anode.bench.lit::after { content: "bench"; color: var(--brand); font-size: 11px; letter-spacing: .08em; margin-left: 8px; }
+
+  /* ---------------- s14 CTA ---------------- */
+  #s14 { text-align: center; }
+  #s14 .steps { display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 70px; }
+  #s14 .steps .st { font-size: 34px; font-weight: 780; letter-spacing: .01em; }
+  #s14 .steps .ar { font-size: 30px; color: var(--brand); }
+  #s14 .big { font-size: 76px; font-weight: 850; letter-spacing: .02em; margin-top: 74px; }
+  #s14 .big b { color: var(--brand); }
+  #s14 .ask { font-size: 27px; color: var(--ink-2); margin-top: 26px; line-height: 1.5; }
+  #s14 .ask b { color: var(--ink); }
+  #s14 .url { font-size: 25px; color: var(--brand); font-weight: 750; margin-top: 34px; letter-spacing: .03em; }
+
+  /* faux mouse pointer */
+  #cursor { position: fixed; left: 0; top: 0; width: 30px; height: 34px; z-index: 60; pointer-events: none;
+    opacity: 0; transform-origin: 3px 3px; filter: drop-shadow(0 2px 5px rgba(0,0,0,.6)); }
+  .ripple { position: fixed; width: 42px; height: 42px; margin: -21px 0 0 -21px; border-radius: 50%;
+    border: 3px solid rgba(255,122,41,.8); z-index: 55; pointer-events: none; opacity: 0; }
+</style>
+
+<div id="topbar">
+  <div class="logo">MET<b>ACTO</b></div>
+  <div class="divider"></div>
+  <div class="label">Construction AI Workforce</div>
+  <div class="spacer"></div>
+  <div id="wm">Illustrative interface — synthetic project data</div>
+</div>
+
+<div id="gate">◦ Nothing sends without a signature</div>
+
+<div id="main">
+
+  <!-- s0: HUB -->
+  <section class="scene" id="s0"><div class="board">
+    <div class="hd"><h1>CONSTRUCTION AI AGENTS</h1><div class="count"><i></i><span id="s0count">6 running</span></div></div>
+    <div id="s0rows"></div>
+  </div></section>
+
+  <!-- s1: the drag -->
+  <section class="scene" id="s1">
+    <div style="text-align:center; margin-top:8px;">
+      <div class="kicker rv">Across active jobs</div>
+      <h1 class="rv">Margin rarely disappears all at once.</h1>
+      <div class="sub rv" style="margin-left:auto;margin-right:auto;max-width:900px;">It leaks while the paperwork catches up to the field.</div>
+    </div>
+    <div class="drags">
+      <div class="drag card rv"><div class="l">Days a field question waits for an answer</div><div class="v num"><span data-count="3.1" data-dec="1">0</span></div></div>
+      <div class="drag card rv"><div class="l">Days from field directive to documented change</div><div class="v num"><span data-count="26">0</span></div></div>
+      <div class="drag card rv"><div class="l">Days to assemble and submit a pay application</div><div class="v num"><span data-count="9">0</span></div></div>
+      <div class="drag card rv"><div class="l">Closeout items still being chased after demobilization</div><div class="v num"><span data-count="41">0</span></div></div>
+    </div>
+  </section>
+
+  <!-- s2: RFI Writer spoke -->
+  <section class="scene" id="s2">
+    <div class="spoke-hd"><span class="chip run"><i></i>RFI WRITER</span><span class="agent">One field question, end to end.</span><span class="job">JOB 214 · RIVERSIDE MEDICAL PAVILION</span></div>
+    <div class="stage2">
+      <div>
+        <div class="event card rv" id="s2ev">
+          <div class="ts">06:42 · FIELD · SUPERINTENDENT M. OKAFOR</div>
+          <div class="photo"><div class="slab"></div><div class="edge"></div><div class="mark"></div><div class="exif">IMG_4471 · 06:42 · grid C/4</div></div>
+          <div class="note">“Slab edge here doesn’t match <b>A-301</b>. Which one governs?”</div>
+        </div>
+        <div class="evs" style="margin-top:18px;">
+          <div class="ev card rv"><div class="tag">SHEET A-301 · rev 4</div><div class="tt"><s>rev 3</s> superseded — current sheet pulled<em></em></div></div>
+          <div class="ev card rv"><div class="tag">SPEC 03 30 00 §3.4B</div><div class="tt">Cast-in-place tolerance — edge alignment</div></div>
+          <div class="ev card rv"><div class="tag">RFI-098 · ans. 6/14</div><div class="tt">Prior decision on grid C edge condition</div></div>
+          <div class="ev card rv"><div class="tag">FIELD PHOTO · 06:42</div><div class="tt">Marked-up photo attached as exhibit A</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="draft card">
+          <div class="dhd"><div class="t">DRAFT · RFI-112</div><span class="chip run" id="s2chip"><i></i>drafting</span></div>
+          <div class="dline rv"><div class="k">Question</div><div class="v">Slab edge at grid C/4 conflicts with the edge condition shown on A-301 rev 4. Confirm governing detail.</div><div class="src">photo 06:42</div></div>
+          <div class="dline rv"><div class="k">References</div><div class="v">A-301 rev 4 · Spec 03 30 00 §3.4B · RFI-098 response</div><div class="src">3 sources</div></div>
+          <div class="dline rv"><div class="k">Prior decision</div><div class="v">RFI-098 set the grid C edge at the architectural face — this condition appears to differ.</div><div class="src">RFI-098</div></div>
+          <div class="dline rv"><div class="k">Proposed path</div><div class="v" id="s2fixline">Hold edge form at C/4 <span id="s2fix">per sheet A-301</span>; crew proceeds on C/5–C/8 meanwhile.</div><div class="src">draft</div></div>
+          <div class="dline rv"><div class="k">Cost / schedule</div><div class="v">No cost impact if answered within 48h; C/4 pour holds 2 days.</div><div class="src">look-ahead</div></div>
+          <div class="actions">
+            <button class="btn" id="s2edit">Edit</button>
+            <button class="btn primary" id="s2issue">Issue RFI-112</button>
+            <div class="issued" id="s2issued">✓ Issued · ball in court: design team · due 8/29</div>
+          </div>
+        </div>
+        <div class="metric" style="margin-top:22px;">
+          <div class="m card rv"><div class="k">Question → issued</div><div class="v good num" id="s2m1">—</div><div class="note">Crew stayed working.</div></div>
+          <div class="m card rv"><div class="k">Baseline on this job</div><div class="v base num">3.1 <small>days</small></div><div class="note">before the RFI Writer</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- s3: built for you -->
+  <section class="scene" id="s3">
+    <div style="text-align:center;"><div class="kicker rv">Build the agents — yours, not generic</div>
+      <h1 class="rv">The PM’s edit didn’t disappear.</h1></div>
+    <div class="zoom card rv">
+      <div class="lbl">What Dan changed in RFI-112</div>
+      <div class="line">Hold edge form at C/4 <s>per sheet A-301</s> <b>per the latest ASI, then the sheet</b>; crew proceeds meanwhile.</div>
+    </div>
+    <div class="split">
+      <div class="out std card rv"><div class="k">→ Standing rule · RFI Writer</div>
+        <div class="b">Check the ASI log before citing a sheet as governing.<br><code>rule #14 · applies to all drafts · effective now</code></div></div>
+      <div class="out evc card rv"><div class="k">→ Eval case #35</div>
+        <div class="b">A superseded reference cited as governing <b>must fail</b> before any update ships.<br><code>added to the regression gate</code></div></div>
+    </div>
+    <div class="punch rv">Your PM’s correction on Tuesday is the agent’s standard on Wednesday.<br><b>We don’t hand you a generic RFI writer. We build yours.</b></div>
+  </section>
+
+  <!-- s4: Change Tracker spoke -->
+  <section class="scene" id="s4">
+    <div class="spoke-hd"><span class="chip run"><i></i>CHANGE TRACKER</span><span class="agent">Capture the change while the evidence is fresh.</span><span class="job">JOB 214 · PCO-041</span></div>
+    <div class="stage2">
+      <div>
+        <div class="event card rv">
+          <div class="ts">TUE 14:07 · FIELD DIRECTIVE · OWNER’S REP (VERBAL)</div>
+          <div class="note" style="margin-top:0;">“Add the rebar mat at the loading dock apron — crew to proceed today.”<br><span style="color:var(--ink-3);font-size:17px;">captured from the daily log · potential change opened</span></div>
+        </div>
+        <div class="metric" style="margin-top:22px; flex-direction:column; gap:18px;">
+          <div class="m card rv"><div class="k">Notice → documented change</div><div class="v good num"><span data-count="2">0</span> <small>days</small></div><div class="note">baseline: 26 days</div></div>
+          <div class="m card rv"><div class="k">Documented while evidence was on site</div><div class="v good num">$<span data-count="41800" data-fmt="comma">0</span></div><div class="note">into the change log · original notice date preserved</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="check card">
+          <div class="dhd" style="margin-bottom:8px;"><div class="t" style="font-size:21px;font-weight:750;">PCO-041 · evidence assembly</div><span class="chip run" id="s4chip"><i></i>collecting</span></div>
+          <div class="ci" id="s4c1"><div class="box">✓</div><div class="lbl">Labor hours — daily log, 3 days</div></div>
+          <div class="ci" id="s4c2"><div class="box">✓</div><div class="lbl">Delivery ticket — 4,200 lb rebar</div></div>
+          <div class="ci" id="s4c3"><div class="box">✓</div><div class="lbl">Field photos (2) — apron, mat placement</div></div>
+          <div class="ci" id="s4c4"><div class="box">✓</div><div class="lbl">Schedule effect — 3-day pull on look-ahead</div></div>
+          <div class="ci" id="s4c5"><div class="box">!</div><div class="lbl">Subcontractor quote — <b style="color:var(--amber);">missing</b></div><div class="own" id="s4own">owner: J. Reyes · due tomorrow</div></div>
+        </div>
+        <div class="gatecard rv" id="s4gate">⏸ PM + Estimator set the position &nbsp;<small>price and contract language stay human — the agent never priced it</small></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- s5: hub pulse -->
+  <section class="scene" id="s5"><div class="board">
+    <div class="hd"><h1>CONSTRUCTION AI AGENTS</h1><div class="count"><i></i><span id="s5count">8 running</span></div></div>
+    <div id="s5rows"></div>
+  </div></section>
+
+  <!-- s6: Pay App Checker spoke -->
+  <section class="scene" id="s6">
+    <div class="spoke-hd"><span class="chip run"><i></i>PAY APP CHECKER</span><span class="agent">Billing starts with the exceptions, not a blank package.</span><span class="job">JOB 214 · AUGUST BILLING</span></div>
+    <div class="recon">
+      <div class="rcol card rv"><div class="t">Schedule of values</div></div>
+      <div class="rcol card rv"><div class="t">Progress</div></div>
+      <div class="rcol card rv"><div class="t">Approved COs</div></div>
+      <div class="rcol card rv"><div class="t">Stored material</div></div>
+      <div class="rcol card rv"><div class="t">Backup docs</div></div>
+    </div>
+    <div class="exlist card rv" id="s6ex">
+      <div class="t">4 exceptions · each with an owner</div>
+      <div class="exrow" id="s6e1"><div class="st">!</div><div class="lbl">Stored material — no bill of sale on rebar delivery</div><div class="own">controller</div></div>
+      <div class="exrow" id="s6e2"><div class="st">!</div><div class="lbl">CO-14 approved but not reflected in the SOV</div><div class="own">PM</div></div>
+      <div class="exrow" id="s6e3"><div class="st">!</div><div class="lbl">Line 07 progress differs from the field report</div><div class="own">superintendent</div></div>
+      <div class="exrow" id="s6e4"><div class="st">!</div><div class="lbl">Lien waiver missing — tier-2 sub</div><div class="own">controller</div></div>
+    </div>
+    <div class="metric" style="max-width:1300px; margin-top:16px;">
+      <div class="m card rv"><div class="k">Days to submission</div><div class="v num"><span class="base">9</span> <span class="good">→ <span data-count="3">0</span></span></div><div class="note" id="s6sub" style="opacity:0;color:var(--green);font-weight:700;">✓ Pay app submitted — day 3</div></div>
+      <div class="m card rv"><div class="k">Invoiced on time</div><div class="v good num">$<span data-count="1.2" data-dec="1">0</span>M</div><div class="note">cash follows the paperwork</div></div>
+    </div>
+  </section>
+
+  <!-- s7: Submittal Clerk spoke -->
+  <section class="scene" id="s7">
+    <div class="spoke-hd"><span class="chip run"><i></i>SUBMITTAL CLERK</span><span class="agent">Stop the incomplete package at the door.</span><span class="job">JOB 214 · DOOR HARDWARE · SPEC 08 71 00</span></div>
+    <div class="subgrid">
+      <div class="upload card rv">
+        <div class="ts" style="font-family:var(--mono);font-size:15px;color:var(--brand);letter-spacing:.05em;margin-bottom:12px;">09:15 · UPLOAD · TRADE: PACIFIC DOOR &amp; HDW</div>
+        <div class="file"><span class="ic">PDF</span> Product data — locksets series 45</div>
+        <div class="file"><span class="ic">PDF</span> Product data — hinges &amp; closers</div>
+        <div class="file"><span class="ic">PDF</span> Keying schedule — draft</div>
+        <div class="file"><span class="ic">XLS</span> Hardware sets 01–24</div>
+      </div>
+      <div>
+        <div class="check card">
+          <div class="dhd" style="margin-bottom:8px;"><div class="t" style="font-size:21px;font-weight:750;">Register + contract check</div><span class="chip run" id="s7chip"><i></i>checking</span></div>
+          <div class="ci" id="s7c1"><div class="box">✓</div><div class="lbl">All 24 hardware sets present against the register</div></div>
+          <div class="ci" id="s7c2"><div class="box">✓</div><div class="lbl">Keying schedule matches door schedule rev C</div></div>
+          <div class="ci" id="s7c3"><div class="box">!</div><div class="lbl">Fire-rating certification — <b style="color:var(--amber);">missing</b> for sets 09–12</div><div class="own" id="s7own1">returned to trade</div></div>
+          <div class="ci" id="s7c4"><div class="box">!</div><div class="lbl">Closer product data cites <b style="color:var(--amber);">superseded spec revision</b></div><div class="own" id="s7own2">returned to trade</div></div>
+        </div>
+        <div class="gatecard rv" id="s7gate">⏸ Project engineer clears routing &nbsp;<small>comments and resubmission tasks stay on the item</small></div>
+        <div class="metric" style="margin-top:20px;">
+          <div class="m card rv"><div class="k">First-pass completeness</div><div class="v num"><span class="base">62%</span> <span class="good">→ <span data-count="94">0</span>%</span></div><div class="note">weak packages never reach the reviewer</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- s8: hub pulse 2 -->
+  <section class="scene" id="s8"><div class="board">
+    <div class="hd"><h1>CONSTRUCTION AI AGENTS</h1><div class="count"><i></i><span>9 running</span></div></div>
+    <div id="s8rows"></div>
+  </div></section>
+
+  <!-- s9: Closeout spoke -->
+  <section class="scene" id="s9">
+    <div class="spoke-hd"><span class="chip run"><i></i>CLOSEOUT COORDINATOR</span><span class="agent">Closeout starts while the trades are still on site.</span><span class="job">JOB 198 · TURNOVER PACKAGE</span></div>
+    <div class="cograph">
+      <div class="cobig card rv"><div class="k">Items missing at demob</div><div class="v num" id="s9big">41</div><div class="n">chased from the turnover list — while every trade was still reachable</div></div>
+      <div class="colist check card rv">
+        <div class="ci" id="s9c1"><div class="box">✓</div><div class="lbl">Warranties — mechanical, roofing, overhead doors</div></div>
+        <div class="ci" id="s9c2"><div class="box">✓</div><div class="lbl">O&amp;M manuals — 12 of 12 divisions</div></div>
+        <div class="ci" id="s9c3"><div class="box">✓</div><div class="lbl">Test &amp; balance reports, training sign-offs</div></div>
+        <div class="ci" id="s9c4"><div class="box">✓</div><div class="lbl">As-builts — final markups collected from trades</div></div>
+        <div class="ci" id="s9c5"><div class="box">✓</div><div class="lbl">Attic stock &amp; spare parts receipts</div></div>
+        <div class="ci" id="s9c6" style="border-bottom:none;"><div class="box">✓</div><div class="lbl" style="color:var(--green);font-weight:700;">Each item accepted into the project system by the closeout lead</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- s10: Alliant proof -->
+  <section class="scene" id="s10"><div class="proof">
+    <div class="who rv">Actual client results · Alliant · construction payroll compliance</div>
+    <h1 class="rv">This part isn’t a mockup.</h1>
+    <div class="bignums">
+      <div class="bn card rv"><div class="v num"><span data-count="11">0</span></div><div class="k">governed agents live in production</div></div>
+      <div class="bn card rv"><div class="v num"><span data-count="1.67" data-dec="2">0</span>×</div><div class="k">analyst output versus baseline</div></div>
+      <div class="bn card rv"><div class="v num">$<span data-count="320">0</span>K</div><div class="k">annual training budget recovered</div></div>
+    </div>
+    <div class="foot rv">Findings drafted. Evidence linked. <b>An analyst approved every one.</b><br>Those are Alliant’s results, not a forecast.</div>
+  </div></section>
+
+  <!-- s11: Morris Shea stub -->
+  <section class="scene" id="s11"><div class="proof">
+    <div class="who rv">Now deploying · Morris Shea · deep foundations</div>
+    <h1 class="rv">Internal Operational AI for work orders &amp; POs</h1>
+    <div class="flow">
+      <div class="fnode card rv"><div class="t">Work order intake</div><div class="d">field request → structured work order, evidence attached</div></div>
+      <div class="farrow rv">→</div>
+      <div class="fnode card rv"><div class="t">Draft PO</div><div class="d">vendor, pricing history, coding — assembled for review</div></div>
+      <div class="farrow rv">→</div>
+      <div class="fnode card gate rv"><div class="t">⏸ Approval</div><div class="d">the right approver signs — thresholds and exceptions theirs</div></div>
+      <div class="farrow rv">→</div>
+      <div class="fnode card rv"><div class="t">System of record</div><div class="d">issued PO written back · full trail kept</div></div>
+    </div>
+    <div class="devnote rv"><b>Baselined first, measured next</b> — touches, waiting, rework, and elapsed days counted before launch,<br>so the results will be Morris Shea’s numbers, not a forecast. Case study publishing soon.</div>
+  </div></section>
+
+  <!-- s12: scorecard -->
+  <section class="scene" id="s12">
+    <div style="text-align:center;"><div class="kicker rv">Operate and improve — what the contract buys after launch</div>
+      <h1 class="rv">August · the whole workforce, scored.</h1></div>
+    <div class="score">
+      <div class="sc card rv"><div class="v num"><span data-count="96">0</span>%</div><div class="k">on time</div></div>
+      <div class="sc card rv"><div class="v num"><span data-count="91">0</span>%</div><div class="k">accepted first pass</div></div>
+      <div class="sc card rv"><div class="v num">−<span data-count="68">0</span>%</div><div class="k">median cycle time vs baseline</div></div>
+      <div class="sc card rv"><div class="v n2 num">41 <span style="color:var(--green)">→ <span data-count="12">0</span></span></div><div class="k">PM corrections</div></div>
+      <div class="sc card rv"><div class="v num"><span data-count="6">0</span>/6</div><div class="k">PMs using it weekly</div></div>
+    </div>
+    <div class="corrline rv">3 recurring corrections found → <b>3 changes shipped</b> — reviewed, gated, and live.</div>
+  </section>
+
+  <!-- s13: growth / bench -->
+  <section class="scene" id="s13">
+    <div style="text-align:center;"><div class="kicker rv">Same systems · same standard</div>
+      <h1 class="rv"><span id="s13count">9 running</span> · <span style="color:var(--ink-2)">the bench staffs the next queue</span></h1></div>
+    <div class="org" id="org"></div>
+  </section>
+
+  <!-- s14: CTA -->
+  <section class="scene" id="s14">
+    <div class="steps">
+      <span class="st rv">Find the work</span><span class="ar rv">→</span>
+      <span class="st rv">Build the agents</span><span class="ar rv">→</span>
+      <span class="st rv">Operate and improve</span>
+    </div>
+    <div class="big rv">BUILD YOUR <b>AI WORKFORCE.</b></div>
+    <div class="ask rv">Ask us for your <b>Construction AI Opportunity Map</b> —<br>which queue is costing you most, the baseline behind it, and a build / no-build call.</div>
+    <div class="url rv">metacto.com/construction</div>
+  </section>
+
+  <!-- s15: hub tail — static clone of s0's initial state → seamless loop -->
+  <section class="scene" id="s15"><div class="board">
+    <div class="hd"><h1>CONSTRUCTION AI AGENTS</h1><div class="count"><i></i><span>6 running</span></div></div>
+    <div id="s15rows"></div>
+  </div></section>
+
+</div>
+
+<div id="capbar"><span id="cap"></span></div>
+<div id="spine">
+  <span class="step" id="sp1"><i></i>Find the work</span><span class="arrow">→</span>
+  <span class="step" id="sp2"><i></i>Build the agents</span><span class="arrow">→</span>
+  <span class="step" id="sp3"><i></i>Operate and improve</span>
+</div>
+
+<svg id="cursor" viewBox="0 0 30 34"><path d="M3 2 L3 26 L9.5 20.5 L13.5 30 L18 28 L14 19 L23 19 Z" fill="#fff" stroke="#101418" stroke-width="1.6"/></svg>
+
+<script>
+  // ---------- shared board data ----------
+  const BOARD6 = [
+    { nm: 'Bid Desk',             tk: 'Pulling scope · <b>concrete package</b>',            st: 'drafting',    cls: 'run' },
+    { nm: 'RFI Writer',           tk: 'RFI-112 · <b>spec conflict</b>',                     st: 'awaiting PM', cls: 'amber' },
+    { nm: 'Submittal Clerk',      tk: 'Door hardware · <b>2 items missing</b>',             st: 'flagged',     cls: 'amber' },
+    { nm: 'Change Tracker',       tk: 'Field directive · <b>cost backup open</b>',          st: 'collecting',  cls: 'run' },
+    { nm: 'Pay App Checker',      tk: 'August billing · <b>4 exceptions</b>',               st: 'review',      cls: 'run' },
+    { nm: 'Closeout Coordinator', tk: 'O&amp;M package · <b>warranties due</b>',            st: 'running',     cls: 'run' },
+  ];
+  const BOARD8 = [
+    { nm: 'Bid Desk',             tk: 'Concrete package · <b>draft ready</b>',              st: 'review',      cls: 'run' },
+    { nm: 'RFI Writer',           tk: 'RFI-112 · <b>issued — ball in court: design</b>',    st: 'issued ✓',    cls: 'green' },
+    { nm: 'Submittal Clerk',      tk: 'Door hardware · <b>returned to trade</b>',           st: 'flagged',     cls: 'amber' },
+    { nm: 'Change Tracker',       tk: 'PCO-041 · <b>$41,800 documented</b>',                st: 'position set', cls: 'green' },
+    { nm: 'Pay App Checker',      tk: 'August billing · <b>3 of 4 exceptions clear</b>',    st: 'review',      cls: 'run' },
+    { nm: 'Closeout Coordinator', tk: 'Job 198 · <b>warranty chase, 6 open</b>',            st: 'running',     cls: 'run' },
+    { nm: 'Job Cost Sentinel',    tk: 'Line 03 · <b>cost vs budget drift</b>',              st: 'watching',    cls: 'run' },
+    { nm: 'Cert & Insurance Watch', tk: 'Tier-2 subs · <b>2 certs expiring</b>',            st: 'notifying',   cls: 'run' },
+  ];
+  const BOARD9 = BOARD8.concat([
+    { nm: 'Prevailing Wage Reviewer', tk: 'Certified payroll · <b>week 34 scan</b>',        st: 'running',     cls: 'run' },
+  ]);
+  const ORG = [
+    { lane: 'Preconstruction', items: [['Bid Desk', 'live'], ['Prequal Clerk', 'bench'], ['Takeoff Reconciler', 'bench']] },
+    { lane: 'Project delivery', items: [['RFI Writer', 'live'], ['Submittal Clerk', 'live'], ['Daily Log Reader', 'bench'], ['Drawing Revision Watch', 'bench']] },
+    { lane: 'Commercial controls', items: [['Change Tracker', 'live'], ['Pay App Checker', 'live'], ['Job Cost Sentinel', 'live'], ['Buyout Tracker', 'bench']] },
+    { lane: 'Compliance', items: [['Cert & Insurance Watch', 'live'], ['Prevailing Wage Reviewer', 'live'], ['Safety Report Clerk', 'bench']] },
+    { lane: 'Closeout', items: [['Closeout Coordinator', 'live'], ['Punch List Router', 'bench']] },
+  ];
+  function buildBoard(elId, rows) {
+    document.getElementById(elId).innerHTML = rows.map((r, i) =>
+      `<div class="brow card" id="${elId}-r${i}"><div class="nm">${r.nm}</div><div class="tk">${r.tk}</div>` +
+      `<span class="chip ${r.cls}" id="${elId}-c${i}"><i></i>${r.st}</span></div>`).join('');
+  }
+  buildBoard('s0rows', BOARD6);
+  buildBoard('s5rows', BOARD8);
+  buildBoard('s8rows', BOARD9);
+  buildBoard('s15rows', BOARD6); // identical to s0's initial state → loop seam
+  document.getElementById('org').innerHTML = ORG.map((l, li) =>
+    `<div class="lane"><div class="lt">${l.lane}</div>` + l.items.map(([nm, kind], ii) =>
+      `<div class="anode ${kind}" id="org-${li}-${ii}">${nm}</div>`).join('') + '</div>').join('');
+
+  // ---------- timeline (304s total — keep DURATION_MS in record-reel.mjs
+  // and the narration offsets in build-reel-audio.mjs in sync) ----------
+  const TL = [
+    { s: 's0', t: 16000, step: 3, cap2: { at: 7000, text: 'Drafts carry their evidence. <b>The right person signs</b> before anything consequential moves.' } },
+    { s: 's1', t: 10000, step: 1, cap: '' },
+    { s: 's2', t: 38000, step: 3, cap: 'Four sources assembled — the current sheet, the spec, the prior decision, the photo. Every claim cited.',
+      caps: [{ at: 16500, text: 'Everything stops. <b>Awaiting PM — Dan R.</b> Nothing sends without a signature.' },
+             { at: 27000, text: 'Dan edits one line and issues it. <b>4h 12m</b> against a 3.1-day baseline — the crew stayed working.' }] },
+    { s: 's3', t: 18000, step: 2, cap: 'One correction became a standing rule <b>and</b> a test case — gated before any update ships.' },
+    { s: 's4', t: 34000, step: 3, cap: 'The crew moved at 14:07. The evidence chase started at 14:08.',
+      caps: [{ at: 13000, text: 'A gap with an owner beats a gap nobody noticed.' },
+             { at: 23000, text: '<b>$41,800 documented in 2 days</b>, not 26 — while the evidence was still on site.' }] },
+    { s: 's5', t: 8000,  step: 3, cap: 'The board keeps moving. Two more queues staffed.' },
+    { s: 's6', t: 32000, step: 3, cap: 'Five records reconciled the moment the period opens.',
+      caps: [{ at: 12000, text: 'The output isn’t a package — it’s a punch list. <b>Four exceptions, each with an owner.</b>' },
+             { at: 24000, text: 'Submitted day 3 instead of day 9. <b>$1.2M invoiced on time.</b>' }] },
+    { s: 's7', t: 28000, step: 3, cap: 'Checked against the register and the contract — before it ever reaches review.',
+      caps: [{ at: 14000, text: 'Two gaps caught at the door. <b>The project engineer routes a complete package.</b>' }] },
+    { s: 's8', t: 6000,  step: 3, cap: 'Nine agents. Each owns one queue.' },
+    { s: 's9', t: 24000, step: 3, cap: 'Warranties, O&amp;M, as-builts — chased while every trade was still reachable.',
+      caps: [{ at: 14000, text: '<b>41 missing items → 6</b>, before demobilization. The closeout lead accepts each one.' }] },
+    { s: 's10', t: 18000, step: 3, wm: 'real', wmText: '✓ ACTUAL CLIENT RESULTS', cap: '' },
+    { s: 's11', t: 16000, step: 2, wm: 'dev', wmText: 'CASE STUDY IN DEVELOPMENT', cap: '' },
+    { s: 's12', t: 18000, step: 3, cap: 'Quality, cycle time, corrections, adoption — measured against <b>your</b> baseline, every month.' },
+    { s: 's13', t: 18000, step: 3, cap: 'Start with one or two. <b>The bench grows with you</b> — preconstruction to closeout.' },
+    { s: 's14', t: 16000, step: 0, cap: '' },
+    { s: 's15', t: 4000,  step: 3, cap: '' },
+  ];
+
+  const $ = q => document.querySelector(q);
+  const params = new URLSearchParams(location.search);
+  const holdScene = params.get('scene');
+  const speed = Number(params.get('speed') || 1);
+
+  // ---------- JS tween engine ----------
+  // ALL motion runs off performance.now() polled inside rAF callbacks, never
+  // CSS transitions: the recorder steps a virtual clock frame by frame, which
+  // drives timers + performance.now() deterministically, while compositor-side
+  // CSS transitions freeze or snap under it.
+  const easeOut = p => 1 - (1 - p) ** 3;
+  const tweens = [];
+  function tween(el, props, { dur = 450, delay = 0, ease = easeOut } = {}) {
+    if (!el) return;
+    tweens.push({ el, props, dur: dur / speed, delay: delay / speed, ease, start: null });
+  }
+  requestAnimationFrame(function loop() {
+    const now = performance.now();
+    for (let i = tweens.length - 1; i >= 0; i--) {
+      const t = tweens[i];
+      if (t.start === null) t.start = now + t.delay;
+      if (now < t.start) continue;
+      const p = Math.min(1, (now - t.start) / t.dur);
+      const e = t.ease(p);
+      const st = t.el.style;
+      let tf = '';
+      for (const [k, [a, b]] of Object.entries(t.props)) {
+        const v = a + (b - a) * e;
+        if (k === 'opacity') st.opacity = v;
+        else if (k === 'y') tf += ` translateY(${v}px)`;
+        else if (k === 'x') tf += ` translateX(${v}px)`;
+        else if (k === 'scale') tf += ` scale(${v})`;
+        else if (k === 'left') st.left = v + 'px';
+        else if (k === 'top') st.top = v + 'px';
+      }
+      if (tf) st.transform = tf.trim();
+      if (p >= 1) tweens.splice(i, 1);
+    }
+    requestAnimationFrame(loop);
+  });
+  const at = (ms, fn) => setTimeout(fn, ms / speed);
+
+  // count-up helper (rAF + performance.now — virtual-time consistent)
+  function countUp(span, { dur = 1500, delay = 0 } = {}) {
+    const to = Number(span.dataset.count);
+    const dec = Number(span.dataset.dec || 0);
+    const comma = span.dataset.fmt === 'comma';
+    at(delay, () => {
+      const t0 = performance.now();
+      const d = dur / speed;
+      requestAnimationFrame(function tick() {
+        const p = Math.min(1, (performance.now() - t0) / d);
+        const v = to * easeOut(p);
+        span.textContent = comma ? Math.round(v).toLocaleString('en-US') : v.toFixed(dec);
+        if (p < 1) requestAnimationFrame(tick);
+      });
+    });
+  }
+  function countUpsIn(scene, { dur = 1500, delay = 0, stagger = 250 } = {}) {
+    scene.querySelectorAll('[data-count]').forEach((sp, i) => countUp(sp, { dur, delay: delay + i * stagger }));
+  }
+
+  // caption
+  function setCap(html) {
+    const cap = $('#cap');
+    if (cap.innerHTML) tween(cap, { opacity: [1, 0] }, { dur: 220 });
+    at(240, () => { cap.innerHTML = html || ''; if (html) tween(cap, { opacity: [0, 1] }, { dur: 320 }); });
+  }
+  // spine
+  function setStep(n) {
+    [1, 2, 3].forEach(i => $('#sp' + i).classList.toggle('on', n === 0 ? true : i === n));
+  }
+  // human-gate badge
+  function gateShow() { const g = $('#gate'); tween(g, { opacity: [0, 1] }, { dur: 350 }); }
+  function gateHide() { const g = $('#gate'); tween(g, { opacity: [1, 0] }, { dur: 250 }); }
+  // watermark
+  const WM_DEFAULT = 'Illustrative interface — synthetic project data';
+  function setWm(cls, text) {
+    const w = $('#wm');
+    w.className = cls || '';
+    w.textContent = text || WM_DEFAULT;
+  }
+
+  // cursor
+  let cx = 960, cy = 900;
+  function centerOf(el) { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }
+  function cursorGlide(x, y, { dur = 900 } = {}) {
+    const c = $('#cursor');
+    tween(c, { opacity: [Number(c.style.opacity || 0), 1] }, { dur: 200 });
+    tween(c, { left: [cx, x], top: [cy, y] }, { dur, ease: p => (p < 0.5 ? 4 * p ** 3 : 1 - ((-2 * p + 2) ** 3) / 2) });
+    cx = x; cy = y;
+  }
+  function cursorPress() {
+    const r = document.createElement('div');
+    r.className = 'ripple'; r.style.left = cx + 'px'; r.style.top = cy + 'px';
+    document.body.appendChild(r);
+    tween(r, { opacity: [0.9, 0], scale: [0.4, 1.5] }, { dur: 550 });
+    const c = $('#cursor');
+    tween(c, { scale: [1, 0.82] }, { dur: 110 });
+    at(120, () => tween(c, { scale: [0.82, 1] }, { dur: 140 }));
+  }
+  function cursorHide() { tween($('#cursor'), { opacity: [1, 0] }, { dur: 250 }); }
+
+  // staged reveal of .rv elements in a scene
+  function revealScene(sc, { delay = 400, stagger = 420 } = {}) {
+    sc.querySelectorAll('.rv').forEach((el, i) => {
+      el.style.opacity = 0;
+      tween(el, { opacity: [0, 1], y: [12, 0] }, { dur: 480, delay: delay + i * stagger });
+    });
+  }
+
+  // ---------- scene choreography ----------
+  function chip(el, cls, text) { el.className = 'chip ' + cls; el.innerHTML = '<i></i>' + text; }
+
+  function runS0(rowsId) {
+    // a live board: a couple of meaningful status flips, then stillness
+    at(2500, () => chip($(`#${rowsId}-c0`), 'run', 'draft ready'));
+    at(4200, () => { $(`#${rowsId}-r1`).classList.add('hot'); });
+    at(6000, () => { chip($(`#${rowsId}-c5`), 'green', 'package sent ✓'); $(`#${rowsId}-r5`).classList.add('ok'); });
+  }
+
+  function runS2() {
+    const sc = $('#s2');
+    // evidence cards + draft lines stagger in via revealScene; choreography on top:
+    at(9500,  () => chip($('#s2chip'), 'run', 'draft complete'));
+    at(11000, () => { chip($('#s2chip'), 'amber', 'awaiting PM · Dan R.'); gateShow(); });
+    at(17500, () => { // Dan's edit — strike the old phrase, write the fix
+      const fix = $('#s2fix');
+      fix.innerHTML = '<span class="strike">per sheet A-301</span> <span class="fix" id="s2fixnew" style="opacity:0">per the latest ASI, then the sheet</span>';
+      tween($('#s2fixnew'), { opacity: [0, 1] }, { dur: 400, delay: 700 });
+    });
+    at(21500, () => { // click Issue
+      const [x, y] = centerOf($('#s2issue'));
+      cursorGlide(x, y, { dur: 900 });
+      at(1050, () => cursorPress());
+      at(1200, () => {
+        chip($('#s2chip'), 'green', 'issued ✓');
+        gateHide();
+        tween($('#s2issued'), { opacity: [0, 1] }, { dur: 350 });
+      });
+      at(2100, () => cursorHide());
+    });
+    at(26500, () => { // metric lands
+      $('#s2m1').innerHTML = '4h 12m';
+      tween($('#s2m1'), { opacity: [0, 1], scale: [0.94, 1] }, { dur: 450 });
+    });
+  }
+
+  function runS4() {
+    const tick = (id, d) => at(d, () => $(id).classList.add('done'));
+    tick('#s4c1', 3200); tick('#s4c2', 4600); tick('#s4c3', 6000); tick('#s4c4', 7400);
+    at(9200, () => { $('#s4c5').classList.add('miss'); tween($('#s4own'), { opacity: [0, 1] }, { dur: 380 }); });
+    at(12500, () => chip($('#s4chip'), 'amber', 'awaiting position'));
+    at(15500, () => gateShow());
+    at(20500, () => { gateHide(); chip($('#s4chip'), 'green', 'position set ✓'); });
+    countUpsIn($('#s4'), { delay: 22500, dur: 1600, stagger: 500 });
+  }
+
+  function runS6() {
+    // reconciliation wave: fill each column with cells, tick green, 4 amber
+    const cols = $('#s6').querySelectorAll('.rcol');
+    const exAt = { 1: 3, 2: 1, 3: 4, 4: 2 }; // colIndex → row that goes amber
+    cols.forEach((col, ci) => {
+      for (let r = 0; r < 5; r++) {
+        const cell = document.createElement('div');
+        cell.className = 'rcell'; cell.textContent = exAt[ci] === r ? '!' : '✓';
+        col.appendChild(cell);
+        at(2000 + ci * 550 + r * 260, () => cell.classList.add(exAt[ci] === r ? 'ex' : 'ok'));
+      }
+    });
+    at(16000, () => { ['#s6e1', '#s6e3', '#s6e4'].forEach((id, i) =>
+      at(i * 800, () => { const r = $(id); r.classList.add('clear'); r.querySelector('.st').textContent = '✓'; })); });
+    at(21500, () => { const r = $('#s6e2'); r.classList.add('clear'); r.querySelector('.st').textContent = '✓'; });
+    at(23500, () => tween($('#s6sub'), { opacity: [0, 1] }, { dur: 400 }));
+    countUpsIn($('#s6'), { delay: 23500, dur: 1400, stagger: 400 });
+  }
+
+  function runS7() {
+    at(3500, () => $('#s7c1').classList.add('done'));
+    at(5000, () => $('#s7c2').classList.add('done'));
+    at(7000, () => { $('#s7c3').classList.add('miss'); tween($('#s7own1'), { opacity: [0, 1] }, { dur: 350 }); });
+    at(8800, () => { $('#s7c4').classList.add('miss'); tween($('#s7own2'), { opacity: [0, 1] }, { dur: 350 });
+      chip($('#s7chip'), 'amber', '2 items flagged'); });
+    at(12000, () => gateShow());
+    at(17500, () => { gateHide(); chip($('#s7chip'), 'green', 'routed complete ✓'); });
+    countUpsIn($('#s7'), { delay: 19000, dur: 1400 });
+  }
+
+  function runS9() {
+    const tick = (id, d) => at(d, () => $(id).classList.add('done'));
+    tick('#s9c1', 3000); tick('#s9c2', 4600); tick('#s9c3', 6200); tick('#s9c4', 7800); tick('#s9c5', 9400); tick('#s9c6', 12000);
+    // 41 counts DOWN to 6, then turns green
+    at(3000, () => {
+      const el = $('#s9big');
+      const t0 = performance.now(); const d = 9000 / speed;
+      requestAnimationFrame(function tick2() {
+        const p = Math.min(1, (performance.now() - t0) / d);
+        el.textContent = Math.round(41 - 35 * easeOut(p));
+        if (p < 1) requestAnimationFrame(tick2); else el.classList.add('ok');
+      });
+    });
+  }
+
+  function runS13() {
+    // bench nodes light up lane by lane; count ticks 9 → 16 available
+    let n = 0;
+    ORG.forEach((l, li) => l.items.forEach(([_, kind], ii) => {
+      if (kind !== 'bench') return;
+      n++;
+      at(3500 + n * 900, () => $(`#org-${li}-${ii}`).classList.add('lit'));
+    }));
+    at(3500 + (n + 1) * 900, () => { $('#s13count').innerHTML = '9 running · <span style="color:var(--brand)">7 on the bench</span>'; });
+  }
+
+  const RUNNERS = {
+    s0: () => runS0('s0rows'),
+    s1: () => countUpsIn($('#s1'), { delay: 1600, dur: 1500, stagger: 350 }),
+    s2: runS2,
+    s4: runS4,
+    s5: () => { at(2200, () => $('#s5rows-r1').classList.add('ok')); at(3400, () => $('#s5rows-r3').classList.add('ok')); },
+    s6: runS6,
+    s7: runS7,
+    s9: runS9,
+    s10: () => countUpsIn($('#s10'), { delay: 2200, dur: 1700, stagger: 450 }),
+    s12: () => countUpsIn($('#s12'), { delay: 1800, dur: 1500, stagger: 300 }),
+    s13: runS13,
+  };
+
+  function playScene(i) {
+    const cfg = TL[i];
+    document.querySelectorAll('.scene').forEach((sc) => {
+      if (sc.id === cfg.s) {
+        sc.classList.add('on');
+        if (i === 0) { sc.style.opacity = 1; } // frame 0 must be fully rendered (loop seam)
+        else tween(sc, { opacity: [0, 1], y: [10, 0] }, { dur: 520 });
+        if (sc.querySelector('.rv')) revealScene(sc, { delay: i === 0 ? 0 : 450 });
+      } else if (sc.classList.contains('on')) {
+        sc.classList.remove('on');
+        tween(sc, { opacity: [1, 0] }, { dur: 300 });
+      }
+    });
+    setStep(cfg.step);
+    setWm(cfg.wm, cfg.wmText);
+    if (cfg.cap !== undefined) setCap(cfg.cap);
+    if (cfg.cap2) at(cfg.cap2.at, () => setCap(cfg.cap2.text));
+    if (cfg.caps) cfg.caps.forEach(c => at(c.at, () => setCap(c.text)));
+    if (RUNNERS[cfg.s]) RUNNERS[cfg.s]();
+  }
+
+  function startTimeline() {
+    let elapsed = 0;
+    TL.forEach((cfg, i) => { at(elapsed, () => playScene(i)); elapsed += cfg.t; });
+    at(elapsed + 800, () => { window.__done = true; });
+  }
+
+  if (holdScene) {
+    playScene(Number(holdScene));
+  } else if (params.get('paused')) {
+    window.__start = startTimeline;
+  } else {
+    startTimeline();
+  }
+</script>
