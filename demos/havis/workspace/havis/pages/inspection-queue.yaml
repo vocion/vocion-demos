@@ -5,7 +5,7 @@ slug: inspection-queue
 title: Held Kits
 description: Kits waiting on a person — the model's verdict, the finding by outline, and the decision to make.
 icon: pause-circle
-nav: { section: Quality, order: 2 }
+nav: { section: Quality, order: 3 }
 archetype: queue
 source: { kind: objects, objectType: inspection }
 filters:

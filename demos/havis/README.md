@@ -64,13 +64,13 @@ demos/havis/
     ├── learnings/                    # global rules incl. the Rev B bracket override (worked example)
     ├── evals/                        # 6 cases, 4 stop-ship
     ├── trust.yaml                    # qc.* autonomy ladder — all disabled
-    └── pages/                        # command-center · inspection-queue · template-registry ·
-                                      # agent-registry · kit-photos · tour.yaml
+    └── pages/                        # command-center · analyze · inspection-queue · template-registry ·
+                                      # agent-registry · kit-photos · tour.yaml · components/ (VisionEngines, AnalyzeQueue)
 ```
 
 ### Core features this demo drove (all on vocion-core `main`)
 
-`kind: s3` source connector · `/api/v1/s3/object` presigned image route · `vision_compare_reference` + `vision_detect_labels` tools (granted via `harness.grantTools`) · `qc.hold` / `qc.release` / `qc.request_rework` / `dataset.add_example` actions · review-card content kind `image` · `metadata.image_url` rendering on object detail · `format: image` on workspace pages · `npm run kit:inspect` CLI.
+`kind: s3` source connector · `/api/v1/s3/object` presigned image route · `/api/v1/vision/model` classifier start/stop · `/api/v1/objects/[id]/analyze` + `finding-feedback` · `vision_compare_reference` + `vision_detect_labels` tools (granted via `harness.grantTools`) · `qc.hold` / `qc.release` / `qc.request_rework` / `dataset.add_example` actions · review-card content kind `image` · `metadata.image_url` rendering on object detail · `format: image` on workspace pages · `npm run kit:inspect` CLI.
 
 ## Bring it up
 

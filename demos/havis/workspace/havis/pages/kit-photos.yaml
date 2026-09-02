@@ -2,7 +2,7 @@ slug: kit-photos
 title: Photo Archive
 description: Every photo in the bucket as the platform sees it — kit, label, production order and capture time parsed from the key.
 icon: images
-nav: { section: Quality, order: 5 }
+nav: { section: Quality, order: 6 }
 archetype: list
 source: { kind: documents, source: kit-photos, limit: 200 }
 sort: { field: createdAt, dir: desc }

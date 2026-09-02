@@ -6,6 +6,14 @@
 
 > Your stations already take the photo. We verify it against your own good photos of the same kit — no per-kit programming — and hold anything that looks off for a person to decide.
 
+## Engine switch (top of Kit Verification and Analyze)
+
+**Rekognition classifier: Running / Off** with Start / Stop. While it's Running, every Analyze runs the hybrid (Claude Vision + Rekognition second opinion; disagreements are held for a person). Off = Claude Vision alone. Starting takes ~10 minutes and bills ~$4/hour while running — **stop it after the demo**. Also scriptable: `aws/start-model.sh` / `aws/stop-model.sh`.
+
+## The live beat: Analyze (`/dashboard/p/analyze`)
+
+Un-analyzed kits (still carrying Havis's label, no model verdict) with an **Analyze** button per row and **Run next N**. Each run is ~20 s and lands inline: Claude Vision verdict + confidence, Rekognition label (or "off"), the findings. Click the title to open the record with the regions drawn on the photo. This is the page to demo from; reset with `scripts/reset-demo.sh` to refill the queue.
+
 ## Beats
 
 | # | Show | Say | Don't |

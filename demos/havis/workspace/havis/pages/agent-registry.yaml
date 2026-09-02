@@ -2,7 +2,7 @@ slug: agent-registry
 title: Agent Registry
 description: The two coworkers in the proof stage, and the bench behind them.
 icon: users
-nav: { section: Quality, order: 4 }
+nav: { section: Quality, order: 5 }
 archetype: list
 source: { kind: agents }
 fields:
