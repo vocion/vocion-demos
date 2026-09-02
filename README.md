@@ -36,7 +36,10 @@ git submodule update --init --recursive
 
 ## Current pin
 
-vocion-core is pinned at **`vocion-v0.1.0`**. See `vocion-core/` for the actual commit.
+vocion-core is pinned at **`v2.36.0`**. See `vocion-core/` for the actual commit.
+
+Releases are cut by semantic-release in vocion-core's CI, so tags read `v2.36.0`. The
+older `vocion-v0.x` names below predate that and are no longer produced.
 
 ## Demos
 
@@ -49,6 +52,6 @@ vocion-core is pinned at **`vocion-v0.1.0`**. See `vocion-core/` for the actual 
 ## Upgrading the core pin
 
 ```bash
-./scripts/upgrade-core.sh vocion-v0.2.0
+./scripts/upgrade-core.sh v2.36.0
 # (verifies the tag exists upstream, checks out the submodule, commits)
 ```
