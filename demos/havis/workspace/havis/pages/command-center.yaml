@@ -9,6 +9,10 @@ nav: { section: Quality, order: 1 }
 archetype: list
 source: { kind: objects, objectType: inspection }
 sort: { field: createdAt, dir: desc }
+widgets:
+  - component: VisionEngines
+    position: above
+    data: []
 stats:
   - { label: Kits inspected, kind: count }
   - { label: Held, kind: countWhere, where: { field: status, op: eq, value: held } }

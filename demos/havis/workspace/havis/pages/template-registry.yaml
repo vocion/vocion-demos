@@ -2,7 +2,7 @@ slug: template-registry
 title: Kit Templates
 description: The silhouette sheets enrolled so far — one good photograph enrols a kit; no per-part programming.
 icon: layout-template
-nav: { section: Quality, order: 3 }
+nav: { section: Quality, order: 4 }
 archetype: list
 source: { kind: objects, objectType: kit-template }
 stats:

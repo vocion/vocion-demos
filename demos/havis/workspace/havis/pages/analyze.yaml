@@ -1,0 +1,29 @@
+# Analyze — the un-analyzed kits (still carrying Havis's label as the
+# baseline, no model verdict yet) with a Run button each. The engine switch on
+# top decides whether a run is Claude Vision alone or the hybrid.
+slug: analyze
+title: Analyze
+description: Kits that have not been checked by the model yet. Run one, or the next batch, and watch the verdicts land.
+icon: scan-search
+nav: { section: Quality, order: 2 }
+archetype: list
+source: { kind: objects, objectType: inspection }
+filters:
+  - { field: meta.source, op: eq, value: labelled_history }
+sort: { field: createdAt, dir: asc }
+stats:
+  - { label: Waiting for a model verdict, kind: count }
+widgets:
+  - component: VisionEngines
+    position: above
+    data: []
+  - component: AnalyzeQueue
+    position: above
+    props: { limit: 12 }
+    data: [rows]
+fields:
+  - { key: photo, label: Photo, from: meta.image_url, format: image }
+  - { key: kit, label: Kit, from: meta.template_id, format: mono }
+  - { key: po, label: Production order, from: meta.production_order, format: mono }
+  - { key: captured, label: Captured, from: meta.captured_at, format: mono }
+rowLink: /dashboard/objects/{id}
