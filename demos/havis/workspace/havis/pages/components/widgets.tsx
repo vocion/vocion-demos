@@ -22,24 +22,53 @@ export function VisionEngines() {
 export function AnalyzeQueue({ rows = [], limit = 12 }: { rows?: Row[]; limit?: number }) {
   const [results, setResults] = useState<Record<string, Result>>({});
   const [running, setRunning] = useState<string | null>(null);
+  const [phase, setPhase] = useState<Record<string, string>>({});
   const [runningAll, setRunningAll] = useState(false);
   const [shown, setShown] = useState(limit);
 
   async function run(row: Row): Promise<void> {
     const key = String(row.id);
     setRunning(key);
+    setPhase(p => ({ ...p, [key]: 'starting…' }));
     try {
       const res = await fetch(`/api/v1/objects/${row.id}/analyze?classifier=1`, { method: 'POST' });
-      const body = (await res.json()) as { ok?: boolean; ms?: number; reference?: Result; classifier?: Result['classifier']; error?: { message?: string } };
-      if (!res.ok || !body.ok) {
-        setResults(r => ({ ...r, [key]: { error: body.error?.message ?? `HTTP ${res.status}` } }));
+      if (!res.ok || !res.body) {
+        const b = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
+        throw new Error(b.error?.message ?? `HTTP ${res.status}`);
+      }
+      const reader = res.body.getReader();
+      const dec = new TextDecoder();
+      let buf = '';
+      let done = false;
+      let final: Record<string, unknown> | null = null;
+      while (!done) {
+        const { value, done: d } = await reader.read();
+        done = d;
+        buf += dec.decode(value ?? new Uint8Array(), { stream: !d });
+        const lines = buf.split('\n');
+        buf = lines.pop() ?? '';
+        for (const line of lines) {
+          if (!line.trim()) {
+            continue;
+          }
+          const ev = JSON.parse(line) as Record<string, unknown> & { phase: string };
+          const label = ev.phase === 'references' ? 'references found' : ev.phase === 'model' ? 'Claude Vision comparing…' : ev.phase === 'parsed' ? 'verdict parsed' : ev.phase === 'saved' ? 'saved' : ev.phase === 'classifier' ? 'Rekognition…' : ev.phase;
+          setPhase(p => ({ ...p, [key]: label }));
+          if (ev.phase === 'done') {
+            final = ev;
+          }
+        }
+      }
+      if (!final || !final.ok) {
+        setResults(r => ({ ...r, [key]: { error: String(final?.error ?? 'no result') } }));
       } else {
-        setResults(r => ({ ...r, [key]: { ...(body.reference ?? {}), classifier: body.classifier ?? null, ms: body.ms } }));
+        setResults(r => ({ ...r, [key]: { ...((final!.reference as Result) ?? {}), classifier: (final!.classifier as Result['classifier']) ?? null, ms: Number(final!.ms) } }));
       }
     } catch (err) {
       setResults(r => ({ ...r, [key]: { error: (err as Error).message } }));
     } finally {
       setRunning(null);
+      setPhase(p => ({ ...p, [key]: '' }));
     }
   }
 
@@ -68,7 +97,10 @@ export function AnalyzeQueue({ rows = [], limit = 12 }: { rows?: Row[]; limit?: 
             {Math.min(shown, rows.length)}
           </span>
         </div>
-        <button type="button" disabled={runningAll || running !== null || pending === 0} onClick={runAll} className="ml-auto inline-flex items-center rounded-md bg-foreground px-3 py-1.5 text-xs font-medium text-background disabled:opacity-50">
+        <a href="/dashboard/p/cheat-sheet" target="_blank" rel="noreferrer" className="ml-auto inline-flex items-center gap-1 rounded-md border border-border px-3 py-1.5 text-xs transition hover:bg-muted" title="Havis's Good/Bad labels — which should pass, which should hold (opens in a new tab)">
+          Cheat sheet ↗
+        </a>
+        <button type="button" disabled={runningAll || running !== null || pending === 0} onClick={runAll} className="inline-flex items-center rounded-md bg-foreground px-3 py-1.5 text-xs font-medium text-background disabled:opacity-50">
           {runningAll ? 'Running…' : `Run next ${pending}`}
         </button>
         {shown < rows.length && (
@@ -110,7 +142,7 @@ export function AnalyzeQueue({ rows = [], limit = 12 }: { rows?: Row[]; limit?: 
                 {r?.error && <div className="mt-1 text-xs text-red-600">{r.error}</div>}
               </div>
               <button type="button" disabled={running !== null || runningAll} onClick={() => run(row)} className="inline-flex items-center rounded-md border border-border px-3 py-1.5 text-xs font-medium transition hover:bg-muted disabled:opacity-50">
-                {isRunning ? 'Analyzing…' : r ? 'Run again' : 'Analyze'}
+                {isRunning ? (phase[key] || 'Analyzing…') : r ? 'Run again' : 'Analyze'}
               </button>
             </li>
           );

@@ -37,10 +37,11 @@ WHERE t.org_id={q(a.org)} AND t.slug='kit-template' AND NOT EXISTS (SELECT 1 FRO
 for r in rows:
     key = f"templates/{r['template_id']}/{r['label']}/{r['file'].split('/')[-1]}"
     po = r.get('production_order') or r.get('camera_id')
-    verdict = 'pass' if r['label']=='good' else 'hold'; status = 'passed' if verdict=='pass' else 'held'
+    # No verdict before a model has looked: status pending, Havis's label kept aside as known_label (cheat sheet / eval only).
+    status = 'pending'
     meta = {'template_id': r['template_id'], 'production_order': po, 'captured_at': r['captured_at'], 'station_view': r['view'], 'image_key': key, 'bucket': a.bucket,
-            'image_url': f"/api/v1/s3/object?bucket={a.bucket}&key={key.replace('/', '%2F')}", 'known_label': r['label'], 'verdict': verdict, 'confidence': None, 'findings': [],
-            'explanation': f"Backfilled from Havis's labelled sample pack ({r['label'].upper()} as supplied, 2026-08-31). Shadow-mode baseline — not a model verdict. Run vision_compare_reference for a live check.",
+            'image_url': f"/api/v1/s3/object?bucket={a.bucket}&key={key.replace('/', '%2F')}", 'known_label': r['label'], 'verdict': None, 'confidence': None, 'findings': [],
+            'explanation': None,
             'source': 'labelled_history', 'checks': {}, 'fixture': False}
     title = f"{r['template_id']} · {po}"
     out.append(f"""INSERT INTO business_object (org_id, type_id, title, status, metadata, created_by)
