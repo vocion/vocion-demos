@@ -154,6 +154,17 @@ Standard playbook deliverables, keyed to *this* use case:
 - **Scope creep.** Rework routing, supplier quality, and camera health are teasers, not
   scope. Two agents.
 
+## Addendum (2026-09-02) — how the analysis works, as built
+
+Every **Analyze** on a kit photo runs this loop, live, in about 20 seconds:
+
+1. **Reference comparison (Claude Vision).** The candidate photo plus two verified-good photos of the same kit go to Claude Vision with the workspace's adopted learnings in the prompt. It reads the silhouette sheet, returns every region it checked (green = matched) and the findings (amber), each with a box on the photo.
+2. **Crop, sharpen and upscale individual regions.** Any fastener box the full-frame pass could not count is cropped from the 4K photo with padding, upscaled (Lanczos, up to 4×), sharpened, and sent back to be counted. A count that matches the printed quantity clears the finding; a mismatch becomes a blocking finding. The crop is stored and shown on the record. This is what a person does by zooming in.
+3. **Two models, compared and scored.** Amazon Rekognition Custom Labels (trained on the workspace's good/bad sets) gives a whole-image second opinion. The record shows both engines side by side with confidence, whether they agree, and a hybrid verdict: agree → that verdict; disagree → hold for a person; one engine → its call. The classifier has a start/stop switch because its endpoint bills per hour; when it's off, Analyze runs on Claude Vision alone.
+4. **Feedback and training loop.** A person agrees or disagrees with each finding; a disagree becomes a learning candidate a person adopts in Learnings, and adopted learnings ride in every later prompt. Approved overrides can file the photo into the good/ or bad/ training set in S3 (`dataset.add_example`), which the next Rekognition training run picks up. The Vision Models page shows every training run, its scores per label, the datasets, and how often each engine has been used.
+
+Result on Havis's pack (2026-09-02): all 9 staged bad kits held, all sampled good kits passed; Rekognition alone agreed with Havis's labels on the good kits but was near coin-flip on the staged bad ones — which is why the reference comparison carries the verdict and the classifier is a second opinion.
+
 ## 7. Decision requested
 
 1. Approve the two-coworker framing and the Hold-never-Reject rule as the demo spine.
