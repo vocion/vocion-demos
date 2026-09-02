@@ -15,11 +15,17 @@
 | 3 | **Kit Templates** (`/dashboard/p/template-registry`) | "Enrolment is one good photograph. That's how the 2,000-SKU wall goes away." Open C-PM-134-PC: the regions as printed. | Don't promise CAD-derived templates; ask the CAD-vs-hand-drawn question here instead. |
 | 4 | **Agents** — Pack Inspector, Quality Analyst | "Two coworkers. What they may never do is a file, not a promise" — show `approvalPolicy.block`. | Don't linger on the five inactive teasers yet. |
 | 5 | **Run one live.** Chat with Pack Inspector: *Check the staged bad kits* suggestion, or paste a key from `templates/C-VS-1012-INUT-2-H/bad/`. ~25 s. | Read the findings aloud: region as printed, expected, saw, how sure. Then: "Hold this kit" → it proposes `qc.hold`. | Don't oversell fastener counts. If it says *unreadable — hand-check*, that's the honest answer at 28 px per screw head. |
+| 5b | **Open a held kit** (any row on Held Kits — the whole row is the link) | Hover a finding: its region lights up on the photo, numbered to match. "72% is how sure it is about the hold; 65% is how sure it is about that one finding." Click **Disagree** on a finding, type why, Record. | Don't skip the disagree — it's the loop. Say: "that correction is now a proposed rule in Learnings, waiting for a person." |
 | 6 | **Held Kits** (`/dashboard/p/inspection-queue`) + **Review** | Open the qc.hold card: the photo, the findings, Confirm hold / Decline. Decline one as a false hold. | — |
-| 7 | **The standard learns.** Chat with Quality Analyst: *File an override as a training example* with the id you just declined. | "Two proposals: a learning for the explanation layer, and the photo filed into the good set — both wait for you. The next training run includes it." Approve `dataset.add_example` → the object is copied in S3, live. | Don't approve `qc.release` on their behalf; a person does. |
+| 7 | **The standard learns.** Open **Learnings**: the disagree from 5b is a pending candidate — adopt it. Then chat with Quality Analyst: *File an override as a training example* with the id you just declined. | "Two proposals: a learning for the explanation layer, and the photo filed into the good set — both wait for you. The next training run includes it." Approve `dataset.add_example` → the object is copied in S3, live. | Don't approve `qc.release` on their behalf; a person does. |
 | 8 | **Second opinion.** Ask the Inspector for `vision_detect_labels` on the same photo. | If RUNNING: the Rekognition label + confidence. If training/stopped: "the classifier is a second opinion and we turn it off between shifts to control cost." Then the caveat below. | — |
 | 9 | **Agent Registry** — the bench | Rework Router, Supplier Quality, Shift Report Writer, Camera Health Monitor, Template Author. "Roadmap, not the proof stage." | — |
 | 10 | End card (verbal) | Proof stage → launch (per the brief's gated structure). No hardware. No edge appliance. Everything portable. | Don't quote a price not in the brief. Don't name the existing camera vendor. |
+
+## Before and after each run
+
+- **Reset**: `./scripts/reset-demo.sh` wipes inspections, qc proposals, learning candidates and vision tool calls, then re-seeds the 72-row baseline (all `labelled_history`, no model rows). Add `--live` to replay the reference comparison on the 9 staged bad kits (~4 min, under a dollar) so Held Kits has model verdicts with regions.
+- **What's live vs static**: rows with Basis `labelled_history` are Joe's labels; Basis `model` rows came from a real vision call. Running a kit in chat flips its row to `model` in front of the audience.
 
 ## Fixture cheat-sheet
 
