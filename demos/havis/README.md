@@ -35,6 +35,9 @@ demos/havis/
 │   └── BRIEF-visual-qc-demo.md  # solution brief: visual QC of package assembly
 │                                #   layouts on Vocion + AWS — FOR REVIEW
 ├── research/
+│   ├── havis-context.md                # DATA ROOM EXPORT — intro-call transcript, emails,
+│   │                                   #   attachments, company research (2026-08-24 → 08-31).
+│   │                                   #   Read this first when planning.
 │   └── aws-computer-vision-automl.md   # AWS AutoML / CV options (Rekognition
 │                                       #   Custom Labels, SageMaker Canvas, AutoGluon)
 └── assets/                      # reel + images, later
