@@ -1,0 +1,17 @@
+slug: agent-registry
+title: Agent Registry
+description: The two coworkers in the proof stage, and the bench behind them.
+icon: users
+nav: { section: Quality, order: 4 }
+archetype: list
+source: { kind: agents }
+fields:
+  - { key: name, label: Coworker, from: title }
+  - { key: desc, label: What it does, from: meta.description }
+  - key: status
+    label: Status
+    from: status
+    format: badge
+    tones: { active: ok, inactive: muted }
+  - { key: model, label: Model, from: meta.model, format: mono }
+rowLink: /dashboard/agents/{id}

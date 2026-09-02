@@ -10,7 +10,18 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEMO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPO_ROOT="$(cd "$DEMO_DIR/../.." && pwd)"
-CORE_DIR="$REPO_ROOT/vocion-core/packages/core"
+# This demo runs on the UMBRELLA core checkout (vocion-local/vocion-core, main)
+# rather than the demos-pinned core: it needs the s3 connector, the vision tools
+# and the qc.* actions that landed on core main in Sep 2026. Re-pin to a tagged
+# core once one ships with them. Override with VOCION_CORE_DIR.
+UMBRELLA_CORE="$(cd "$REPO_ROOT/.." 2>/dev/null && pwd)/vocion-core/packages/core"
+if [ -n "${VOCION_CORE_DIR:-}" ]; then
+  CORE_DIR="$VOCION_CORE_DIR"
+elif [ -d "$UMBRELLA_CORE/src/libs/sources" ] && [ -f "$UMBRELLA_CORE/src/libs/sources/s3.ts" ]; then
+  CORE_DIR="$UMBRELLA_CORE"
+else
+  CORE_DIR="$REPO_ROOT/vocion-core/packages/core"
+fi
 
 if [ ! -d "$CORE_DIR" ]; then
   echo "ERROR: vocion-core submodule not found at $CORE_DIR" >&2
