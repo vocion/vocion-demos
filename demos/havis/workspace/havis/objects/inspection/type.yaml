@@ -1,0 +1,59 @@
+slug: inspection
+label: Inspection
+description: >-
+  One pack-station photo of one kit, and what was decided about it. The unit
+  of work for kit verification: the model's verdict and findings, the
+  classifier's second opinion, and — when a person acts — the hold, release
+  or rework decision with its reason. Status: pending → passed | held →
+  released | rework.
+icon: scan-search
+schema:
+  fields:
+    template_id:
+      type: string
+      required: true
+      description: Kit id as printed on the silhouette sheet
+    production_order:
+      type: string
+      description: Production order from the photo filename (PDxxxxxx)
+    captured_at:
+      type: string
+      description: Capture time from the photo filename (ISO)
+    station_view:
+      type: enum
+      values: [primary, secondary]
+      description: Which station the photo came from (SECONDARY in the filename)
+    image_key:
+      type: string
+      required: true
+      description: S3 key of the photo
+    image_url:
+      type: image
+      description: In-app URL that renders the photo (presigned S3)
+    verdict:
+      type: enum
+      values: [pass, hold]
+      description: The reference comparison's verdict
+    confidence:
+      type: number
+      description: Model confidence in the verdict (0-1)
+    findings:
+      type: array
+      description: "Per-region findings: region as printed, issue, expected, observed, severity, confidence"
+    explanation:
+      type: string
+      description: Two to four plain sentences a line lead can act on
+    checks:
+      type: object
+      description: Reference (Claude vision) and classifier (Rekognition Custom Labels) results with timestamps
+    decision:
+      type: object
+      description: "A person's hold / release / rework: reason, who, when"
+    source:
+      type: enum
+      values: [model, labelled_history]
+      description: labelled_history rows are Havis's own Good/Bad samples backfilled as the shadow-mode baseline
+    known_label:
+      type: enum
+      values: [good, bad]
+      description: Havis's own label for sample-pack photos — the ground truth the demo is measured against

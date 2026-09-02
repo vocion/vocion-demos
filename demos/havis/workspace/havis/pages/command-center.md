@@ -1,0 +1,1 @@
+Kits are verified against verified-good photos of the same kit. **Held** means a person has not decided yet; it is not a rejection. Rows marked *labelled history* are Havis's own Good/Bad samples backfilled as the shadow-mode baseline; *model* rows carry a live verdict from the reference comparison.

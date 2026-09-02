@@ -1,20 +1,24 @@
 version: 1
-# Tenant scope. `orgId` is the legacy field name (from the Clerk era); the
-# runtime treats it as a generic tenant id and `workspace:apply --org <id>`
-# overrides it. Set to the project slug so the manifest is self-describing.
+# Tenant scope. `orgId` is the legacy field name; the runtime treats it as
+# the tenant id and `workspace:apply --org <id>` overrides it.
 orgId: havis
-projectSlug: havis
 name: havis
 description: >-
-  Havis Inc. (havis.com) — Warminster, PA manufacturer of rugged in-vehicle
-  consoles, mounting solutions, tablet and laptop docking, and transport
-  solutions for public safety, utilities, warehouse/logistics, field
-  operations, healthcare and defense. BLANK demo workspace: no agents,
-  skills, playbooks, objects or sources authored yet. Intake pending — see
-  README.md ("what the proposal says") and docs/ for the candidate use
-  case (visual QC of package assembly layouts).
+  Havis Inc. (Warminster, PA) — rugged in-vehicle consoles, mounting,
+  docking and transport hardware, ~2,000 kit SKUs. This workspace is the
+  KIT VERIFICATION demo built for Joe Alderfer, Sr. Manufacturing Engineer,
+  after the 2026-08-28 discovery call: every hardware kit is laid out on a
+  printed 24x36" silhouette sheet and photographed at the pack station; two
+  AI coworkers — the Pack Inspector and the Quality Analyst — verify the
+  photo against verified-good references of the same kit (reference-based
+  matching, no per-kit programming), explain any miss in plain English, and
+  hold the kit for a person. A person decides every hold, release and rework.
+  Nothing ships or is scrapped on the model's say-so. Photos are Havis's own
+  sample pack (72 images, two kits) in a tagged S3 bucket; the trained
+  classifier is Amazon Rekognition Custom Labels; the reference comparison
+  is Claude vision.
 defaults:
-  # Matches the pinned core's own defaults (libs/llm/langchain.ts) so cost
-  # tracking in libs/pricing.ts resolves. Bump alongside a core pin bump.
+  # Matches the core default (libs/llm/langchain.ts) so pricing resolves.
   model: claude-sonnet-4-6
-  temperature: '0.3'
+  temperature: '0.2'
+surfaces: []
