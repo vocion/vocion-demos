@@ -40,7 +40,12 @@ demos/havis/
 │   │                                   #   Read this first when planning.
 │   └── aws-computer-vision-automl.md   # AWS AutoML / CV options (Rekognition
 │                                       #   Custom Labels, SageMaker Canvas, AutoGluon)
-└── assets/                      # reel + images, later
+├── data/images/                 # HAVIS SAMPLE PACK (real, 2026-08-31, 72 × 4K JPG, 49 MB)
+│   ├── good/<template_id>/      #   63 Good — C-PM-134-PC (23), C-VS-1012-INUT-2-H (40)
+│   ├── bad/<template_id>/       #    9 Bad — C-PM-134-PC (5),  C-VS-1012-INUT-2-H (4)
+│   └── index.jsonl              #   one row per image: template_id, label, camera_id,
+│                                #     primary/secondary view, captured_at (from filename)
+└── assets/                      # reel, later
 ```
 
 ## What the proposal says
@@ -62,6 +67,10 @@ Not yet — there is no proposal. Fill this in per Phase 1 of
 | Learning story | — |
 | Roadmap | — |
 | Commercials | — |
+
+**Sample pack.** Joe Alderfer's photos are in `data/images/` (two templates, Good/Bad
+whole-image labels only — no part-level boxes; Bad examples are not annotated with *what*
+is wrong). Client data: keep it inside this private repo, never in the reel or the www site.
 
 What we do know (discovery, 2026-09-02): Havis has **images organized by template
 id, with Good and Bad labelled examples for each template**, and wants to detect
