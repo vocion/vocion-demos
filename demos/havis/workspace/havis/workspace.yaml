@@ -1,0 +1,20 @@
+version: 1
+# Tenant scope. `orgId` is the legacy field name (from the Clerk era); the
+# runtime treats it as a generic tenant id and `workspace:apply --org <id>`
+# overrides it. Set to the project slug so the manifest is self-describing.
+orgId: havis
+projectSlug: havis
+name: havis
+description: >-
+  Havis Inc. (havis.com) — Warminster, PA manufacturer of rugged in-vehicle
+  consoles, mounting solutions, tablet and laptop docking, and transport
+  solutions for public safety, utilities, warehouse/logistics, field
+  operations, healthcare and defense. BLANK demo workspace: no agents,
+  skills, playbooks, objects or sources authored yet. Intake pending — see
+  README.md ("what the proposal says") and docs/ for the candidate use
+  case (visual QC of package assembly layouts).
+defaults:
+  # Matches the pinned core's own defaults (libs/llm/langchain.ts) so cost
+  # tracking in libs/pricing.ts resolves. Bump alongside a core pin bump.
+  model: claude-sonnet-4-6
+  temperature: '0.3'

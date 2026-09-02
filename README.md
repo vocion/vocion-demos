@@ -11,7 +11,8 @@ vocion-demos/
 ├── vocion-core/         # git submodule — pinned to a specific vocion-core tag
 ├── demos/
 │   ├── support-reply/   # one directory per demo (context + scripts)
-│   └── down-to-earth/
+│   ├── down-to-earth/
+│   └── havis/           # blank scaffold — intake pending
 └── scripts/
     ├── upgrade-core.sh  # bump the submodule to a new tag
     └── new-demo.sh      # scaffold a new demos/<slug>/ dir
@@ -43,6 +44,7 @@ vocion-core is pinned at **`vocion-v0.1.0`**. See `vocion-core/` for the actual 
 |------|-------|-------|--------|
 | `support-reply` | Support reply drafting from tickets | L1 (Drafting) | Stub |
 | `down-to-earth` | Down to Earth Organic & Natural — Hiring Workforce: score every applicant 1–100, route to the right store, human-approved | L2 (Score → route → approve) | Demo-ready |
+| `havis` | Havis Inc. — blank project (port 3004, `vocion_havis`); candidate use case: visual QC of package assembly layouts, see `demos/havis/docs/` | — | Blank |
 
 ## Upgrading the core pin
 
