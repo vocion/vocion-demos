@@ -26,4 +26,19 @@ fields:
     tones: { held: warn, rework: bad }
   - { key: explanation, label: What's wrong, from: meta.explanation }
   - { key: confidence, label: Confidence, from: meta.confidence }
+  - key: claude
+    label: Claude Vision
+    from: meta.engines.claude.verdict
+    format: badge
+    tones: { pass: ok, hold: warn }
+  - key: rekognition
+    label: Rekognition
+    from: meta.engines.rekognition.verdict
+    format: badge
+    tones: { pass: ok, hold: warn }
+  - key: agreement
+    label: Engines
+    from: meta.engines.agreement
+    format: badge
+    tones: { agree: ok, disagree: bad, one-engine: muted }
 rowLink: /dashboard/objects/{id}
