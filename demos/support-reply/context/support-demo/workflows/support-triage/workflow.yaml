@@ -1,9 +1,13 @@
 slug: support_triage
 name: Support Triage
 description: >-
-  L1 support-reply workflow. Summarizes an inbound ticket, drafts a reply,
-  and pauses for human approval before send. Send step is a stub in v1 —
-  wire to your help-desk connector (Zendesk / Intercom / Front) in v2.
+  Refreshes the ticket source, collects a reply for one ticket, pauses for
+  human approval, and sends it. Summarizing a ticket and drafting a reply
+  are skills the support-assistant agent runs in chat (see
+  agents/support-assistant.yaml `skills:`) — a workflow step cannot invoke a
+  skill directly in the current schema, so drafting happens with the agent
+  and the resulting text is brought into this workflow's `draft_reply`
+  input (or typed in by hand at the `reply` step) to be reviewed and sent.
 version: 1
 status: active
 trigger:
@@ -17,35 +21,42 @@ inputSchema:
       description: Raw inbound ticket body
     customer_name:
       type: string
-      description: Customer name (for greeting in the reply)
+      description: Customer name (for reference during review)
+    customer_email:
+      type: string
+      description: Customer email address — the send step's recipient
     sender_name:
       type: string
       default: the Support team
+    draft_reply:
+      type: string
+      description: >-
+        Reply text already drafted (e.g. by the support-assistant agent's
+        summarize_ticket + draft_reply skills in chat). When supplied, the
+        `reply` step below completes immediately instead of pausing for a
+        human to type one in.
 steps:
-  - name: summary
-    type: skill
-    skill: summarize_ticket
-    input:
-      ticket: '{{input.ticket}}'
-      customer_name: '{{input.customer_name}}'
+  - name: refresh_tickets
+    type: sync
+    sources: [zendesk]
 
-  - name: draft
-    type: skill
-    skill: draft_reply
-    input:
-      summary: '{{steps.summary.output}}'
-      ticket: '{{input.ticket}}'
-      customer_name: '{{input.customer_name}}'
-      sender_name: '{{input.sender_name}}'
+  - name: reply
+    type: ask
+    prompt: >-
+      Paste the drafted reply for this ticket. Draft it with the
+      support-assistant agent's summarize_ticket and draft_reply skills
+      first, then bring the text here.
+    default: '{{input.draft_reply}}'
 
   - name: review
     type: approve
-    prompt: Review the drafted support reply before sending.
-    reviews: draft
+    prompt: Review the drafted reply before sending.
+    reviews: reply
 
   - name: send
     type: action
-    action: stub.log_only
+    action: gmail.send
     input:
-      to_customer: '{{input.customer_name}}'
-      body_from_step: draft
+      to: '{{input.customer_email}}'
+      subject: 'Re: your support ticket'
+      body: '{{steps.reply.output}}'
