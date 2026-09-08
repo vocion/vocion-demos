@@ -1,0 +1,48 @@
+slug: publish-post
+name: Publish Post
+description: >-
+  Turn a fact-checked draft into a published post. A QA note first, then a
+  human approval gate before anything leaves the building. The publish
+  step is a stub in v1 — wire it to the real publish path (a git PR against
+  vocion-www, or a CMS API) in v2.
+version: 1
+status: active
+agent: writer
+trigger:
+  type: manual
+inputSchema:
+  type: object
+  required: [brief_title, draft]
+  properties:
+    brief_title:
+      type: string
+      description: Title from the content brief this draft answers
+    draft:
+      type: string
+      description: The writer's draft post body
+    fact_check_notes:
+      type: string
+      description: QA editor's fact-check notes, if already available
+steps:
+  - name: fact-check
+    type: ask
+    prompt: >-
+      Paste the QA editor's fact-check notes for this draft (leave blank if
+      every claim already traces to a workspace file).
+    default: '{{input.fact_check_notes}}'
+    outputAs: fact_check_notes
+
+  - name: review
+    type: approve
+    prompt: >-
+      Approve this draft for publishing. Read it alongside the fact-check
+      notes — this is the last gate before anything leaves the building.
+    reviews: fact-check
+
+  - name: publish
+    type: action
+    action: content.publish_stub
+    input:
+      title: '{{input.brief_title}}'
+      body: '{{input.draft}}'
+      fact_check_notes: '{{steps.fact-check.output}}'

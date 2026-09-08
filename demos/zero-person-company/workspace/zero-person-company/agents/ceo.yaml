@@ -1,0 +1,23 @@
+slug: ceo
+name: CEO
+description: >-
+  Runs the company day to day: turns the board's charter into a working
+  queue for the content team, and reports back on what shipped and what is
+  waiting on a human.
+icon: compass
+accent: indigo
+eyebrow: Company · Workspace Lead
+team: company
+agentType: mission
+suggestions:
+  - label: What's the state of the company?
+    prompt: >-
+      What did the team ship this week, what is waiting in the review queue,
+      and what needs my attention first?
+  - label: Plan next week
+    prompt: >-
+      Given the open briefs and the last QA rejections, what should the
+      strategist, writer, and QA editor each work on next?
+harness:
+  provider: local
+systemPromptFile: ./ceo.system-prompt.md

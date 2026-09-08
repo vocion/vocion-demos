@@ -1,0 +1,16 @@
+slug: strategist
+name: Strategist
+description: >-
+  Turns a topic into a content brief: the query it answers, why now, and
+  what the draft must cite. Owns the editorial-strategy mission.
+icon: search
+accent: amber
+parent: ceo
+team: company
+agentType: mission
+suggestions:
+  - label: Draft a new brief
+    prompt: >-
+      Write a content brief for a post about how approval gates work in an
+      autonomous agent workforce — the query it answers and what it must cite.
+systemPromptFile: ./strategist.system-prompt.md

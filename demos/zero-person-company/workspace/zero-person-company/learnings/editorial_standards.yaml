@@ -1,0 +1,14 @@
+name: editorial_standards
+title: Editorial Standards
+description: >-
+  Rules the writer and QA editor have learned from rejected drafts and QA
+  failures — voice, forbidden claims, sourcing discipline. Individual rules
+  are added through the dashboard as they're discovered; this file only
+  whitelists the bucket and who reads it.
+preamble: >-
+  These accumulate from real fact-check failures — a fabricated number, a
+  banned word, a claim that outran what a file in this workspace actually
+  supports. Read this before drafting or fact-checking anything.
+agents:
+  - writer
+  - qa-editor
