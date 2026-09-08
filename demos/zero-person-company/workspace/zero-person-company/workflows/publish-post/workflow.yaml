@@ -4,7 +4,7 @@ description: >-
   Turn a fact-checked draft into a published post. A QA note first, then a
   human approval gate before anything leaves the building. The publish
   step is a stub in v1 — wire it to the real publish path (a git PR against
-  vocion-www, or a CMS API) in v2.
+  the marketing site, or a CMS API) in v2.
 version: 1
 status: active
 agent: writer

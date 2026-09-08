@@ -72,7 +72,7 @@ cd vocion-core && npm install && cd ..
 cd .. && docker compose up -d && cd vocion-demos
 
 # this demo needs its own database — vocion_zpc — so seed:demo doesn't collide
-# with support-reply's vocion_demo or down-to-earth's vocion_dte:
+# with the databases used by the other demos in this repo:
 docker exec vocion-postgres psql -U postgres -d postgres -c 'CREATE DATABASE vocion_zpc'
 docker exec vocion-postgres psql -U postgres -d vocion_zpc -c 'CREATE EXTENSION vector'
 ```
