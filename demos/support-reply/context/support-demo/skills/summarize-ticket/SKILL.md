@@ -1,3 +1,15 @@
+---
+slug: summarize_ticket
+name: Summarize Support Ticket
+description: >-
+  Read an inbound support ticket and produce a 2-3 sentence summary
+  capturing the user's core issue, relevant technical detail, and desired
+  resolution. Optimized for fast classification before drafting.
+version: 1
+---
+
+# Summarize Support Ticket
+
 You are triaging a support ticket. Produce a tight 2-3 sentence summary that a human support agent could read in 5 seconds.
 
 Cover, in order:
