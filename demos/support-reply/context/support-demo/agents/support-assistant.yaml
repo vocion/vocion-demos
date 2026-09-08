@@ -5,16 +5,18 @@ icon: bot
 model: claude-sonnet-4-6
 temperature: '0.3'
 
-# Skills this agent can invoke as tools. Match the two operations
-# authored in operations/summarize-ticket and operations/draft-reply.
-skillSlugs:
+# Skills this agent can invoke as tools. Match the two skill folders
+# authored in skills/summarize-ticket and skills/draft-reply.
+# (Field renamed from the pre-skills `skillSlugs` — AgentManifestSchema
+# names it `skills`; the old key was silently dropped by the loader.)
+skills:
   - summarize_ticket
   - draft_reply
 
 # Object types this agent can read. (None today — the demo ships
 # without typed Objects; tickets are passed in as raw strings via the
 # workflow runner and the chat composer.)
-objectTypeSlugs: []
+objectTypes: []
 
 # Source connector slugs the agent can search across. Empty here —
 # the L1 demo doesn't ingest from external sources yet; future
@@ -22,9 +24,11 @@ objectTypeSlugs: []
 connectorSources: []
 
 # Approval policy — drafts and refunds always need a human gate.
-# Currently expressed as a free-form policy doc; the runtime reads
-# `requiresApproval` per-skill (draft_reply has it set to true) so
-# this is informational for now.
+# Free-form policy doc (AgentManifestSchema.approvalPolicy is an
+# untyped record; nothing in the current runtime enforces it). The
+# actual HITL gate for this demo is the `approve` step in
+# workflows/support-triage/workflow.yaml — there is no per-skill
+# requiresApproval flag in the current skill shape (see PR body).
 approvalPolicy:
   always_approve:
     - draft_reply

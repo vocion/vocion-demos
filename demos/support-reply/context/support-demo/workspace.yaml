@@ -1,0 +1,16 @@
+version: 1
+# Tenant scope. The `orgId` field is the legacy name (from the Clerk era);
+# the runtime now treats it as a generic tenant id and the apply-context CLI
+# accepts an `--org` override that wins over this default.
+#
+# Renamed from context.yaml -> workspace.yaml in this migration:
+# loadManifest() (packages/core/src/libs/workspace/loader.ts) only looks
+# for workspace.yaml / workspace.yml, so the old filename was never being
+# read by `workspace:check` / `workspace:apply` at all — a second,
+# pre-existing defect discovered while fixing B-062 (see PR body).
+orgId: support-demo
+name: support-demo
+description: Demo org for the L1 support-reply demo (catalog row #3). Tickets in, reply drafts out.
+defaults:
+  model: claude-sonnet-4-6
+  temperature: '0.3'
