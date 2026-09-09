@@ -1,0 +1,37 @@
+slug: role
+label: Role
+description: >-
+  An open role at a Retail Hiring Workforce store — the job description + criteria a
+  scoring run reads. One record per role per level; store openings reference
+  these. Criteria here are demo baselines pending the HR lead's real job descriptions.
+icon: briefcase
+schema:
+  fields:
+    title:
+      type: string
+      description: Role title (e.g. Deli Clerk, Department Supervisor, Store Manager)
+      required: true
+    level:
+      type: enum
+      values: [level-2, level-3, level-4]
+      description: Internal grade — 2 entry, 3 supervisor, 4 manager. Higher grades need more experience.
+      required: true
+    department:
+      type: enum
+      values: [front-end, deli, grocery, produce, store-wide]
+      default: store-wide
+    criteria:
+      type: string
+      description: The written scoring criteria for this role — what a good and bad answer looks like
+      required: true
+    routes_to_corporate:
+      type: boolean
+      default: false
+      description: Level 3–4 roles also route to corporate admin (the HR lead + HR manager)
+sourceRelevance:
+  retail-web: 0.5
+classificationPrompt: |
+  Given a role description, classify its internal grade: level-2 (entry:
+  sales associate/clerk, cashier, deli clerk), level-3 (department
+  supervisor, assistant manager, manager on duty, relief manager), or
+  level-4 (store manager, deli manager).

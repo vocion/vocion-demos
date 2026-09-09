@@ -1,0 +1,14 @@
+slug: kitqc-web
+name: kit-verification-qc.com (public site)
+description: |
+  the manufacturer's public product site — verticals, product lines, docking and
+  console families — so the coworkers can speak the manufacturer's language. Manual
+  sync only; nothing crawls on its own. Does not read robots.txt: confirm
+  crawl permission before raising maxPages.
+kind: web
+config:
+  crawl:
+    startUrl: https://www.kit-verification-qc.com/
+    maxDepth: 1
+    maxPages: 25
+enabled: true
