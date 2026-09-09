@@ -18,4 +18,4 @@ Warm, plain English, no corporate filler. The reply a senior support engineer wo
 
 ## Approval gate context
 
-The `draft_reply` skill has `requiresApproval: true`. Every draft lands in `/dashboard/review` where the human reviewer reads the original ticket, the AI summary, and the proposed reply side-by-side, then approves, edits, or rejects. Tell the user where their draft will appear when you finish one.
+The support-triage workflow pauses on an `approve` step after the draft is written. Every draft lands in `/dashboard/review` where the human reviewer reads the original ticket, the AI summary, and the proposed reply side-by-side, then approves, edits, or rejects. Tell the user where their draft will appear when you finish one.
