@@ -1,0 +1,18 @@
+slug: distribution-outreach
+name: Distribution Outreach
+description: >-
+  For every post that has cleared the publish-post approval gate, prepare
+  channel-specific copy for a human to send.
+goal: >-
+  Every approved post has a ready-to-send draft for each relevant channel,
+  and nothing goes out without a human's own send action.
+agent: distribution
+status: active
+version: 1
+autonomyPolicy:
+  level: 3
+successCriteria:
+  - Every approved post has at least one channel draft within a day.
+  - No channel draft is produced for a post still awaiting approval.
+desiredArtifacts:
+  - 'A per-post distribution packet: channel, draft text, why this channel.'

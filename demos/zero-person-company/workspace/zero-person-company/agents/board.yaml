@@ -1,0 +1,19 @@
+slug: board
+name: Board
+description: >-
+  Quarterly strategic reviewer. Sets the charter and reads the CEO's report;
+  never touches daily execution and never sends anything itself.
+icon: landmark
+accent: slate
+eyebrow: Governance
+agentType: mission
+suggestions:
+  - label: Review the charter
+    prompt: >-
+      Read the current missions and their autonomy levels. Does the balance
+      of what's gated versus what's allowed to act still make sense?
+  - label: What should change next quarter?
+    prompt: >-
+      Given the last few weeks of ledger entries and rejected approvals,
+      what one policy change would most reduce wasted work?
+systemPromptFile: ./board.system-prompt.md

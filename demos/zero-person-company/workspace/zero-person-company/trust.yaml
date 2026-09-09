@@ -1,0 +1,13 @@
+rules:
+  # A QA-approved correction filed to the training set is low-risk and
+  # reversible, so it may auto-execute once the learning loop is confident.
+  # Still audited — it just skips the queue.
+  - action: dataset.add_example
+    autoApproveAbove: 0.97
+    enabled: true
+
+  # Nothing that reaches a human inbox auto-sends, at any confidence. This
+  # rule exists to be read, not to fire: it documents the ceiling.
+  - action: gmail.send
+    autoApproveAbove: 0.99
+    enabled: false

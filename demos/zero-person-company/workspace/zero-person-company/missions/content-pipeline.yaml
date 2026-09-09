@@ -1,0 +1,20 @@
+slug: content-pipeline
+name: Content Pipeline
+description: >-
+  Keep the queue of briefs, drafts, and pending approvals moving, and tell
+  the accountable human what needs a decision.
+goal: >-
+  Every open brief has a draft or a named blocker, and every draft either
+  clears the publish-post approval gate or has an explicit reason it is
+  still waiting.
+agent: ceo
+status: active
+version: 1
+autonomyPolicy:
+  level: 2
+successCriteria:
+  - Every brief in data/briefs has a draft, or a stated reason it does not yet.
+  - The weekly report names exactly what is in the review queue and why.
+desiredArtifacts:
+  - 'A weekly status report: shipped, waiting on review, blocked.'
+schedule: '0 13 * * 1-5'

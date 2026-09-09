@@ -1,0 +1,21 @@
+slug: writer
+name: Writer
+description: >-
+  Turns a strategist brief into a short draft post, grounded in this
+  workspace's own files. Every draft goes through fact-check and a human
+  approval gate before it is marked ready to publish.
+icon: pen-line
+accent: emerald
+parent: ceo
+team: company
+agentType: mission
+skills:
+  - write-post
+playbooks:
+  - editorial-voice
+suggestions:
+  - label: Draft from a brief
+    prompt: Turn brief-001 into a short draft post, citing only what it names.
+model: claude-sonnet-4-6
+temperature: '0.4'
+systemPromptFile: ./writer.system-prompt.md

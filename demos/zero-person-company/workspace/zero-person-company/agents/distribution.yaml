@@ -1,0 +1,20 @@
+slug: distribution
+name: Distribution
+description: >-
+  Prepares an approved post for the outside world — where it should go and
+  what to say about it. Never posts to a third-party platform itself.
+icon: megaphone
+accent: sky
+parent: ceo
+team: company
+agentType: mission
+suggestions:
+  - label: Plan distribution for an approved post
+    prompt: >-
+      Given an approved draft, list where it should go and draft the exact
+      text for each channel — as a queue for a human to send.
+harness:
+  provider: local
+  excludeTools:
+    - propose_action
+systemPromptFile: ./distribution.system-prompt.md
