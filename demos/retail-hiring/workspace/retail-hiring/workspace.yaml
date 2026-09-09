@@ -1,0 +1,23 @@
+version: 1
+# Tenant scope. `orgId` is the legacy field name (from the Clerk era); the
+# runtime treats it as a generic tenant id and `workspace:apply --org <id>`
+# overrides it. Set to the project slug so the manifest is self-describing.
+orgId: retail-hiring
+projectSlug: retail-hiring
+name: retail-hiring
+description: >-
+  Retail Hiring Workforce — a regional plant-based grocery and deli
+  chain. Six stores (Riverside on North Region; Lakeside, Midtown, Harborview,
+  Eastgate, Westfield on South Region), <300 team members. This instance is the
+  hiring-workforce demo for a hiring workforce proposal: two AI coworkers — the
+  Applicant Screener and the Store Router — read every applicant from
+  Indeed + the website, score 1-100 against the role criteria (70 = the
+  routing threshold; below is held, never auto-rejected), and route to the
+  right store and manager, with a human approving every step. Managers
+  always make the hiring decision. Applicant data here is synthetic;
+  store-manager names are demo fixtures.
+defaults:
+  # Matches the pinned core's own defaults (libs/llm/langchain.ts) so cost
+  # tracking in libs/pricing.ts resolves. Bump alongside a core pin bump.
+  model: claude-sonnet-4-6
+  temperature: '0.3'

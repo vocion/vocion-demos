@@ -1,0 +1,36 @@
+# Presenter's cheat sheet — the manufacturer's own Good/Bad label per photo, so you know
+# which kits should pass and which should hold before you press Analyze.
+# Hidden from the nav; opened from the Analyze page in a new tab.
+slug: cheat-sheet
+title: Cheat Sheet
+description: the manufacturer's labels for every photo in the sample pack — what should pass, what should hold. Presenter only.
+icon: eye
+nav: { section: Quality, order: 99, hidden: true }
+archetype: list
+source: { kind: objects, objectType: inspection }
+sort: { field: meta.known_label, dir: asc }
+stats:
+  - { label: Labelled GOOD (should pass), kind: countWhere, where: { field: meta.known_label, op: eq, value: good } }
+  - { label: Labelled BAD (should hold), kind: countWhere, where: { field: meta.known_label, op: eq, value: bad } }
+  - { label: Model verdicts so far, kind: countWhere, where: { field: meta.source, op: eq, value: model } }
+fields:
+  - { key: photo, label: Photo, from: meta.image_url, format: image }
+  - key: known
+    label: the manufacturer label
+    from: meta.known_label
+    format: badge
+    tones: { good: ok, bad: bad }
+  - { key: kit, label: Kit, from: meta.template_id, format: mono }
+  - { key: po, label: Production order, from: meta.production_order, format: mono }
+  - { key: view, label: Station, from: meta.station_view, format: mono }
+  - key: verdict
+    label: Model verdict
+    from: meta.verdict
+    format: badge
+    tones: { pass: ok, hold: warn }
+  - key: agreement
+    label: Engines
+    from: meta.engines.agreement
+    format: badge
+    tones: { agree: ok, disagree: bad, one-engine: muted }
+rowLink: /dashboard/objects/{id}

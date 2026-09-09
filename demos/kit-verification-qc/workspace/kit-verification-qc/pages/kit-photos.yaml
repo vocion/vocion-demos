@@ -1,0 +1,23 @@
+slug: kit-photos
+title: Photo Archive
+description: Every photo in the bucket as the platform sees it — kit, label, production order and capture time parsed from the key.
+icon: images
+nav: { section: Quality, order: 6 }
+archetype: list
+source: { kind: documents, source: kit-photos, limit: 200 }
+sort: { field: createdAt, dir: desc }
+stats:
+  - { label: Photos, kind: count }
+  - { label: Labelled good, kind: countWhere, where: { field: meta.known_label, op: eq, value: good } }
+  - { label: Labelled bad, kind: countWhere, where: { field: meta.known_label, op: eq, value: bad } }
+fields:
+  - { key: photo, label: Photo, from: meta.image_url, format: image }
+  - { key: kit, label: Kit, from: meta.template_id, format: mono }
+  - key: label
+    label: the manufacturer label
+    from: meta.known_label
+    format: badge
+    tones: { good: ok, bad: warn }
+  - { key: po, label: Production order, from: meta.production_order, format: mono }
+  - { key: view, label: Station, from: meta.station_view, format: mono }
+  - { key: date, label: Captured, from: meta.captured_date, format: mono }
