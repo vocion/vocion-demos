@@ -1,13 +1,13 @@
 # Client Demo Factory — production playbook
 
-How to build, for any new client, the full package we built for Down to Earth:
+How to build, for any new client, the full package we built for Retail Hiring Workforce:
 
 1. a **runnable demo environment** on the Vocion core, seeded with that client's own policies
 2. **synthetic data** at their real volume, engineered to land on the numbers in their proposal
 3. a **live walkthrough script** the salesperson reads
 4. a **rendered demo video** with AI voiceover and a generated music bed
 
-**Reference implementation:** `demos/down-to-earth/` in this repo. Every pattern below is
+**Reference implementation:** `demos/retail-hiring/` in this repo. Every pattern below is
 extracted from it; when in doubt, open that directory and copy the shape.
 
 **Effort:** roughly one focused day for a first-time client, of which ~5 minutes is machine time
@@ -33,7 +33,7 @@ proposal before you touch anything, and again before you ship.
 | Deterministic renderer | `scripts/record-reel.mjs` | you, one command |
 | Narration + music builder | `scripts/build-reel-audio.mjs` | the renderer |
 | Cached music bed | `assets/reel-music.mp3` | the mixer (committed, so re-renders are free) |
-| Rendered video | `assets/dte-hiring-demo.mp4` | the client, as send-ahead / leave-behind |
+| Rendered video | `assets/retail-hiring-demo.mp4` | the client, as send-ahead / leave-behind |
 
 ---
 
@@ -42,20 +42,20 @@ proposal before you touch anything, and again before you ship.
 Read the proposal cover to cover and fill in this table before writing any code. Everything
 downstream keys off it. Cite page numbers — you will need them in the walkthrough.
 
-| Field | What to extract | Down to Earth example |
+| Field | What to extract | Retail Hiring Workforce example |
 |---|---|---|
 | **Agent roster** | The exact coworkers, named as the proposal names them. This is the demo's spine. | 2: Applicant Screener, Store Router (p.3) |
 | **Per-agent skills** | The bullet list under each agent — becomes the operations | parse resume · score 1–100 · explain · apply deal-breakers · flag · request info |
 | **The decision rule** | The number and what happens on each side of it | Threshold 70; ≥70 routes, <70 held with reason, 60–69 near-miss (p.4, p.6) |
 | **Guardrails / non-negotiables** | The client's own policies, verbatim in spirit | plant-based on property; smoking = CEO flag, never auto-reject |
-| **Named entities** | Real people/systems named — and which are deliberately *unnamed* | Amy named; HR manager + CEO deliberately unnamed — never invent |
-| **Untouched systems** | What the client fears you will break | Trackstar: no connection of any kind. ADP: export on hire, never a write |
+| **Named entities** | Real people/systems named — and which are deliberately *unnamed* | the HR lead named; HR manager + CEO deliberately unnamed — never invent |
+| **Untouched systems** | What the client fears you will break | the existing performance-review system: no connection of any kind. ADP: export on hire, never a write |
 | **Volume** | Real throughput, and the plan's included ceiling | ~60 applications/mo, ~20 hires; plan includes 150 |
-| **Worked example** | Any traced example in the doc — you will reproduce it exactly | one applicant → 88 → routed to Kailua manager (p.4) |
+| **Worked example** | Any traced example in the doc — you will reproduce it exactly | one applicant → 88 → routed to Harborview manager (p.4) |
 | **Any shown output** | Tables, inboxes, screenshots in the doc | manager inbox: 3 qualified of 11 (p.5) |
 | **Learning story** | How the system improves, and who approves | shift-work weighting change, corporate approves (p.6) |
 | **Roadmap** | Future capabilities → inactive teasers | 7-agent registry with add-on pricing (p.12) |
-| **Commercials** | Price, term, what's included — for the end card and Q&A | $1,500/mo all-in, 24-mo, no setup fee, 150 apps included |
+| **Commercials** | Price, term, what's included — for the end card and Q&A | a phased monthly structure, no setup fee, a usage ceiling included |
 
 **Also record every error you find in the proposal.** We found a store listed that does not exist.
 Flag it to the human immediately — do not silently "fix" it in the demo and do not reproduce it.
@@ -69,7 +69,7 @@ Flag it to the human immediately — do not silently "fix" it in the demo and do
 
 ```bash
 cd vocion-demos/demos
-cp -R down-to-earth <new-client-slug>
+cp -R retail-hiring <new-client-slug>
 cd <new-client-slug>
 ```
 
@@ -79,7 +79,7 @@ titles. Allocate a port and a database:
 | Demo | Port | Database |
 |---|---|---|
 | support-reply | 3001 | `vocion_demo` |
-| down-to-earth | 3003 | `vocion_dte` |
+| retail-hiring | 3003 | `vocion_retail_hiring` |
 | *your new one* | next free | `vocion_<slug>` |
 
 Each demo needs **its own database** — `seed:demo` keys on user email and exits early if the user
@@ -230,7 +230,7 @@ whole playbook. Hand-author the applicants from the proposal's worked example an
 ```js
 const CURATED = [ /* the three from the proposal's manager-inbox page */ ]
   .map((c, i) => ({ id: `APP-IN-${String(41 + i).padStart(3, '0')}`, /* … */
-                    curated: 'proposal-p4-kailua-shortlist' }));
+                    curated: 'proposal-shortlist' }));
 const indeed = [...Array.from({length: 40}, (_, i) => makeApplicant(i, 'indeed')), ...CURATED];
 ```
 
@@ -591,7 +591,7 @@ cd .. && git add vocion-demos && git commit -m "chore: bump vocion-demos — <sl
 Always commit inside the submodule, then bump the pin from the umbrella. Commit the rendered MP4
 and the cached music — they're deliverables, and the cache is what makes re-renders free.
 
-Write a handoff note (see `HANDOFF-down-to-earth.md`) covering: the engagement facts, what was
+Write a handoff note (see `HANDOFF-retail-hiring.md`) covering: the engagement facts, what was
 built, environment state on this machine, next steps in order, gotchas, and the non-negotiables
 for anyone extending the prompts. Assume the reader is a fresh agent with no context.
 
@@ -603,7 +603,7 @@ Paste this to the agent doing the next client, with the proposal attached.
 
 > You're building a client demo package in the `vocion-demos` repo. Read
 > `docs/CLIENT-DEMO-PLAYBOOK.md` first — it's the full procedure — and use
-> `demos/down-to-earth/` as the reference implementation.
+> `demos/retail-hiring/` as the reference implementation.
 >
 > The client is **<name>**. The attached proposal, dated <date>, is the **single source of truth**:
 > where the platform, older documents, or your instincts disagree with it, the proposal wins.
@@ -672,7 +672,7 @@ chromium), `ffmpeg`/`ffprobe` on PATH, Docker for Postgres, `ELEVENLABS_API_KEY`
 
 ## Appendix D — Non-negotiables to carry into any client
 
-These are Down to Earth's, and the *shape* generalizes even when the content doesn't. Extract the
+These are Retail Hiring Workforce's, and the *shape* generalizes even when the content doesn't. Extract the
 equivalent list from each new proposal and treat it as inviolable across every prompt, fixture,
 caption, and narration line:
 
