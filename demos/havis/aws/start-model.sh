@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # Start the Rekognition Custom Labels model (1 inference unit, ~$4/hr). Waits until RUNNING.
 set -euo pipefail
+
+# Resolve the account from the caller's credentials — never hardcode it in a public repo.
+ACCOUNT_ID="${AWS_ACCOUNT_ID:-$(aws sts get-caller-identity --query Account --output text)}"
 export AWS_PROFILE="${AWS_PROFILE:-metacto}" AWS_DEFAULT_REGION=us-east-1
-PROJECT="arn:aws:rekognition:us-east-1:339712698650:project/havis-kit-condition/1788362445840"
+PROJECT="arn:aws:rekognition:us-east-1:${ACCOUNT_ID}:project/havis-kit-condition/1788362445840"
 ARN=$(aws rekognition describe-project-versions --project-arn "$PROJECT" --output text --query 'ProjectVersionDescriptions[0].ProjectVersionArn')
 STATUS=$(aws rekognition describe-project-versions --project-arn "$PROJECT" --output text --query 'ProjectVersionDescriptions[0].Status')
 echo "model: $ARN ($STATUS)"

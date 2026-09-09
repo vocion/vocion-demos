@@ -1,13 +1,13 @@
 # Havis demo — AWS resources and teardown
 
-Everything the demo created in AWS (account `339712698650`, profile `metacto`, region `us-east-1`) is tagged
+Everything the demo created in AWS (account `<aws-account-id>`, profile `metacto`, region `us-east-1`) is tagged
 `Project=havis-demo`, `Owner=metacto`, `TearDown=true` where the service supports tags. Nothing runs
 outside these resources.
 
 | Resource | Name / ARN | Cost while it exists | Notes |
 |---|---|---|---|
-| S3 bucket | `metacto-havis-demo-339712698650` | ~49 MB storage (cents) | `templates/<kit>/<good|bad>/`, `inbox/`, `manifests/`, `output/` (training output). Public access blocked; bucket policy grants `rekognition.amazonaws.com` read/write. |
-| Rekognition Custom Labels project | `arn:aws:rekognition:us-east-1:339712698650:project/havis-kit-condition/1788362445840` | none | Datasets: train (64) + test (8), 4 labels `<kit>_good` / `<kit>_bad`. |
+| S3 bucket | `metacto-havis-demo-<aws-account-id>` | ~49 MB storage (cents) | `templates/<kit>/<good|bad>/`, `inbox/`, `manifests/`, `output/` (training output). Public access blocked; bucket policy grants `rekognition.amazonaws.com` read/write. |
+| Rekognition Custom Labels project | `arn:aws:rekognition:us-east-1:<aws-account-id>:project/havis-kit-condition/1788362445840` | none | Datasets: train (64) + test (8), 4 labels `<kit>_good` / `<kit>_bad`. |
 | Rekognition model (project version) | `…/project/havis-kit-condition/version/v1/1788362705155` | Training: ~$1/hr while `TRAINING_IN_PROGRESS`. **Inference: ~$4/hr per inference unit while `RUNNING`** — stop it after the demo. | Started/stopped by `start-model.sh` / `stop-model.sh`. |
 
 There is **no** Lambda, EventBridge rule, IAM role, SageMaker endpoint or Greengrass deployment. The S3 events → workflow

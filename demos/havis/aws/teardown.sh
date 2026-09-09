@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 # Delete every AWS resource the Havis demo created. Irreversible. Asks once.
 set -euo pipefail
+
+# Resolve the account from the caller's credentials — never hardcode it in a public repo.
+ACCOUNT_ID="${AWS_ACCOUNT_ID:-$(aws sts get-caller-identity --query Account --output text)}"
 export AWS_PROFILE="${AWS_PROFILE:-metacto}" AWS_DEFAULT_REGION=us-east-1
-BUCKET="metacto-havis-demo-339712698650"
-PROJECT="arn:aws:rekognition:us-east-1:339712698650:project/havis-kit-condition/1788362445840"
+BUCKET="metacto-havis-demo-${ACCOUNT_ID}"
+PROJECT="arn:aws:rekognition:us-east-1:${ACCOUNT_ID}:project/havis-kit-condition/1788362445840"
 echo "This deletes bucket s3://$BUCKET and Rekognition project $PROJECT (model + datasets)."
 read -r -p "Type 'havis' to continue: " ANS; [ "$ANS" = "havis" ] || { echo "aborted"; exit 1; }
 

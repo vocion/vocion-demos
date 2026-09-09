@@ -95,7 +95,7 @@ export WORKSPACE_PATH=$(cd ../../../vocion-demos/demos/havis/workspace/havis && 
 npm run workspace:check && npm run workspace:apply -- --org <project id printed by seed:demo>
 
 # 4. Seed the sample-pack baseline, sync the photos (needs OPENAI_API_KEY for embeddings)
-python3 ../../../vocion-demos/demos/havis/scripts/seed-inspections.py --org <project id> --bucket metacto-havis-demo-339712698650 | docker exec -i vocion-postgres psql -U postgres -d vocion_havis -q
+python3 ../../../vocion-demos/demos/havis/scripts/seed-inspections.py --org <project id> --bucket metacto-havis-demo-<aws-account-id> | docker exec -i vocion-postgres psql -U postgres -d vocion_havis -q
 npm run sync:source -- --project havis --source kit-photos --full
 
 # 5. Pre-run the staged bad kits so Held Kits isn't empty (~25 s each; needs ANTHROPIC_API_KEY + AWS creds)

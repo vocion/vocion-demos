@@ -11,7 +11,7 @@ description: |
   Live AWS: bucket tagged Project=havis-demo, TearDown=true.
 kind: s3
 config:
-  bucket: metacto-havis-demo-339712698650
+  bucket: metacto-havis-demo-<aws-account-id>
   prefix: templates/
   region: us-east-1
   extensions: ['.jpg', '.jpeg', '.png']
