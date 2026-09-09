@@ -1,0 +1,24 @@
+version: 1
+# Tenant scope. `orgId` is the legacy field name; the runtime treats it as
+# the tenant id and `workspace:apply --org <id>` overrides it.
+orgId: kit-verification-qc
+name: kit-verification-qc
+description: >-
+  Kit Verification QC — a manufacturer of rugged in-vehicle consoles, mounting,
+  docking and transport hardware, ~2,000 kit SKUs. This workspace is the
+  kit-verification demo built after an initial discovery call with a
+  manufacturing QC prospect: every hardware kit is laid out on a
+  printed 24x36" silhouette sheet and photographed at the pack station; two
+  AI coworkers — the Pack Inspector and the Quality Analyst — verify the
+  photo against verified-good references of the same kit (reference-based
+  matching, no per-kit programming), explain any miss in plain English, and
+  hold the kit for a person. A person decides every hold, release and rework.
+  Nothing ships or is scrapped on the model's say-so. Photos are the manufacturer's own
+  sample pack (72 images, two kits) in a tagged S3 bucket; the trained
+  classifier is Amazon Rekognition Custom Labels; the reference comparison
+  is Claude vision.
+defaults:
+  # Matches the core default (libs/llm/langchain.ts) so pricing resolves.
+  model: claude-sonnet-4-6
+  temperature: '0.2'
+surfaces: []

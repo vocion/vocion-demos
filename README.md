@@ -11,8 +11,8 @@ vocion-demos/
 ├── vocion-core/         # git submodule — pinned to a specific vocion-core tag
 ├── demos/
 │   ├── support-reply/   # one directory per demo (context + scripts)
-│   ├── down-to-earth/
-│   └── havis/           # blank scaffold — intake pending
+│   ├── retail-hiring/
+│   └── kit-verification-qc/
 └── scripts/
     ├── upgrade-core.sh  # bump the submodule to a new tag
     └── new-demo.sh      # scaffold a new demos/<slug>/ dir
@@ -46,8 +46,8 @@ older `vocion-v0.x` names below predate that and are no longer produced.
 | Slug | Title | Level | Status |
 |------|-------|-------|--------|
 | `support-reply` | Support reply drafting from tickets | L1 (Drafting) | Stub |
-| `down-to-earth` | Down to Earth Organic & Natural — Hiring Workforce: score every applicant 1–100, route to the right store, human-approved | L2 (Score → route → approve) | Demo-ready |
-| `havis` | Havis Inc. — blank project (port 3004, `vocion_havis`); candidate use case: visual QC of package assembly layouts, see `demos/havis/docs/` | — | Blank |
+| `retail-hiring` | Retail Hiring Workforce — AI hiring screener with human review: score every applicant 1–100, route to the right store, human-approved | L2 (Score → route → approve) | Demo-ready |
+| `kit-verification-qc` | Kit Verification QC — manufacturing QC (port 3004, `vocion_kit_verification_qc`); visual QC of package assembly layouts, see `demos/kit-verification-qc/research/` | — | Working |
 
 ## Upgrading the core pin
 
