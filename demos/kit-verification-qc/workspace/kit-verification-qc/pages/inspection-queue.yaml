@@ -1,0 +1,44 @@
+# Held kits + what the coworkers proposed — the queue archetype with the core
+# review queue embedded (action_run rows for qc.*). Decide here or in Review;
+# it is one queue.
+slug: inspection-queue
+title: Held Kits
+description: Kits waiting on a person — the model's verdict, the finding by outline, and the decision to make.
+icon: pause-circle
+nav: { section: Quality, order: 3 }
+archetype: queue
+source: { kind: objects, objectType: inspection }
+filters:
+  - { field: status, op: in, value: [held, rework] }
+sort: { field: createdAt, dir: desc }
+review:
+  skills: [qc.hold, qc.release, qc.request_rework, dataset.add_example]
+  workflows: true
+  heading: Waiting on a person
+fields:
+  - { key: photo, label: Photo, from: meta.image_url, format: image }
+  - { key: kit, label: Kit, from: meta.template_id, format: mono }
+  - { key: po, label: Production order, from: meta.production_order, format: mono }
+  - key: status
+    label: Status
+    from: status
+    format: badge
+    tones: { held: warn, rework: bad }
+  - { key: explanation, label: What's wrong, from: meta.explanation }
+  - { key: confidence, label: Confidence, from: meta.confidence }
+  - key: claude
+    label: Claude Vision
+    from: meta.engines.claude.verdict
+    format: badge
+    tones: { pass: ok, hold: warn }
+  - key: rekognition
+    label: Rekognition
+    from: meta.engines.rekognition.verdict
+    format: badge
+    tones: { pass: ok, hold: warn }
+  - key: agreement
+    label: Engines
+    from: meta.engines.agreement
+    format: badge
+    tones: { agree: ok, disagree: bad, one-engine: muted }
+rowLink: /dashboard/objects/{id}

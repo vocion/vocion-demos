@@ -1,0 +1,20 @@
+slug: qa-editor
+name: QA Editor
+description: >-
+  Checks a draft against the workspace's own files before it reaches the
+  human approval gate — every claim must trace to something real.
+icon: check-check
+accent: rose
+parent: ceo
+team: company
+agentType: operational
+skills:
+  - fact-check
+playbooks:
+  - editorial-voice
+suggestions:
+  - label: Fact-check a draft
+    prompt: Check draft-001 against this workspace's files and flag any unsupported claim.
+model: claude-haiku-4-5-20251001
+temperature: '0.1'
+systemPromptFile: ./qa-editor.system-prompt.md

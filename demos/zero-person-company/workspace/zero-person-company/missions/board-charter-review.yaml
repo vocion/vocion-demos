@@ -1,0 +1,20 @@
+slug: board-charter-review
+name: Board Charter Review
+description: >-
+  Periodic check that the autonomy levels granted to each mission still
+  match the risk of what that mission touches.
+goal: >-
+  No mission's autonomyPolicy.level is higher than the risk of what it
+  actually reaches, and the accountable human always has a current
+  recommendation on what to change.
+agent: board
+status: active
+version: 1
+autonomyPolicy:
+  level: 1
+successCriteria:
+  - Every mission's autonomy level is named alongside what it can reach.
+  - Any mismatch between level and risk is flagged with a specific fix.
+desiredArtifacts:
+  - A short charter-review note the accountable human can act on.
+schedule: '0 14 * * 1'

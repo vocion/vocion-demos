@@ -1,0 +1,33 @@
+# Screening activity — queue archetype over the live skill runs. Empty until
+# the Applicant Intake workflow runs; then every score/route the agents
+# propose lands here, with decisions happening in core /dashboard/review.
+slug: screening-activity
+title: Screening Activity
+description: What the AI coworkers proposed, and what a human decided — the live trail behind the queue.
+icon: activity
+nav: { section: Hiring, order: 3 }
+archetype: queue
+source:
+  kind: skillRuns
+  skills: [review_application, score_candidate, route_candidate, draft_candidate_followup]
+  limit: 100
+review:
+  skills: [review_application, score_candidate, route_candidate, draft_candidate_followup]
+  workflows: true
+  heading: Waiting on a person
+sort: { field: createdAt, dir: desc }
+fields:
+  - { key: title, label: Run, from: title }
+  - { key: applicant, label: Applicant, from: meta.applicant, format: mono }
+  - key: status
+    label: Status
+    from: status
+    format: badge
+    tones: { pending: warn, completed: ok, approved: ok, rejected: bad, failed: bad }
+  - { key: confidence, label: Confidence, from: meta.confidence, format: badge }
+  - key: rating
+    label: Feedback
+    from: meta.rating
+    format: badge
+    tones: { up: ok, down: bad }
+  - { key: createdAt, label: When, from: createdAt, format: date }

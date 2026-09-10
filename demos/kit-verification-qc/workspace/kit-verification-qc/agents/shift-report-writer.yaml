@@ -1,0 +1,16 @@
+slug: shift-report-writer
+name: Shift Report Writer
+description: >-
+  Writes the end-of-shift quality summary for production and the board-level monthly baseline PE sponsors ask for. (Roadmap — not part of the proof stage.)
+icon: file-text
+active: false
+model: claude-sonnet-4-6
+temperature: '0.2'
+eyebrow: Roadmap
+skills: []
+connectorSources: []
+objectTypes: [inspection]
+harness:
+  provider: local
+systemPrompt: |
+  Roadmap placeholder — inactive. Shift Report Writer is not authored yet.

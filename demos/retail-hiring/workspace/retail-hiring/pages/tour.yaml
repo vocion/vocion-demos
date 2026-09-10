@@ -1,0 +1,96 @@
+# The guided demo — 9 steps, the hiring workforce proposal story: applications arrive
+# → Applicant Screener scores → Store Router assigns → a person reviews in
+# the core queue → feedback becomes a learning → the bench.
+# Start: the ▸ Guided demo button, or any dashboard URL + ?tour=1 (one-shot).
+title: Guided demo
+autoStart: false
+steps:
+  - route: /dashboard/p/command-center
+    selector: "#wsx-stats"
+    placement: bottom
+    title: Applications arrive — one queue
+    body: >-
+      Every applicant from Indeed and retailhiring.example.com lands here and is scored
+      1–100 against a standard written with you. Sixty-plus this cycle, about
+      your real volume. 70+ routes to a store manager; below 70 is held with
+      the reason recorded — never auto-rejected.
+
+  - route: /dashboard/p/command-center
+    selector: "#wsx-table"
+    placement: top
+    interactive: true
+    title: "Click Marisol Torres — every row opens the record"
+    body: >-
+      No score in this system is a number without a paper trail. Click any
+      applicant to open the full record, then click Next.
+
+  - route: /dashboard/objects
+    routePrefix: true
+    selector: "main > div.flex-1"
+    placement: bottom
+    title: The record — and the decision, right here
+    body: >-
+      The full application, the screening rationale the agent wrote, and Agent
+      activity: every run that touched this record, with its reasoning. A
+      pending routing can be approved on this very page — it is the same
+      review queue as everywhere else.
+
+  - route: /dashboard/agents
+    selector: "main > div.flex-1"
+    placement: bottom
+    title: The two AI coworkers
+    body: >-
+      The Applicant Screener reads, scores, and explains. The Store Router
+      assigns to the right store. Your standards — plant-based on property,
+      smoking flagged for the CEO, never filtered — live in governed,
+      versioned playbooks, applied identically at every store.
+
+  - route: /dashboard/workflows
+    selector: "main > div.flex-1"
+    placement: bottom
+    title: "Run one live: Applicant Intake"
+    body: >-
+      Paste an application and watch: read → score with the why in plain
+      English → route to the manager — then stop. Nothing sends. It is
+      waiting for a person.
+
+  - route: /dashboard/p/screening-activity
+    selector: "#wsx-review"
+    placement: top
+    title: Waiting on a person — the human gate
+    body: >-
+      These are core review items — the same queue as Review, scoped to
+      hiring. Marisol's routing and a paused intake workflow are sitting in
+      it now. Approve or decline here or there: one queue, one audit trail,
+      and the hiring decision itself is never automated.
+
+  - route: /dashboard/p/store-inbox
+    selector: "#wsx-table"
+    placement: top
+    interactive: true
+    title: What each store manager sees
+    body: >-
+      Each store's 70+ shortlist, delivered by email — the channel Indeed
+      already uses, so nothing about how managers work changes. A smoker with
+      a strong history keeps the score; the flag says the CEO decides. Click
+      any name to open the record.
+
+  - route: /dashboard/learnings
+    selector: "main > div.flex-1"
+    placement: bottom
+    title: Feedback becomes a learning — with approval
+    body: >-
+      Thumbs-up and thumbs-down live on the runs themselves. When a pattern
+      has enough evidence — like shift work predicting deli retention — the
+      system proposes the change in plain language. Nothing changes until you
+      approve it; approved once, applied at all six stores, versioned and
+      reversible.
+
+  - route: /dashboard/p/agent-registry
+    selector: "#wsx-table"
+    placement: top
+    title: Hiring is the first job, not the last
+    body: >-
+      Live records — two coworkers active, seven on the bench. Each activates
+      by a one-line amendment, fixed quote in writing first. You own the
+      platform, the data, and every agent on it.

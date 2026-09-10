@@ -2,7 +2,7 @@
 /**
  * record-reel.mjs — deterministically render assets/reel.html →
  * assets/metacto-construction-workforce.mp4 (3840×2160 @ 30fps, with
- * voiceover + music). Adapted from the down-to-earth demo's recorder.
+ * voiceover + music). Adapted from the retail-hiring demo's recorder.
  *
  * How: the reel loads with ?paused=1, the page's virtual clock is paused
  * (CDP Emulation.setVirtualTimePolicy), and the timeline is stepped exactly

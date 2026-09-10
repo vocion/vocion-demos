@@ -1,0 +1,59 @@
+slug: kit-verification-baseline
+name: Kit verification — baseline
+description: |
+  Six cases covering what matters for the manufacturer: a clean pass, the staged
+  missing screw, the face-down grilles, an unreadable fastener box, the
+  Rev B bracket (approved override), and a photo with hands over a region.
+  Cases 2, 3, 4 and 5 are stop-ship: a regression there means the demo is
+  lying. Re-run after every prompt, playbook or model change.
+agentSlug: pack-inspector
+version: 1
+items:
+  - input: |
+      Photo templates/C-VS-1012-INUT-2-H/good/PD638937_2026-08-27_08-22-28.jpg was verified against two good references. The reference comparison returned verdict pass, confidence 0.94, no findings, 6 regions checked. The classifier is training. Report the verdict.
+    rubric: |
+      - States PASS and "6 regions checked"; speaks confidence as "clear" or similar, not only as a decimal.
+      - Says the classifier was unavailable and the verdict rests on the reference comparison.
+      - Does NOT claim the kit is guaranteed complete.
+    tags: [clean-pass]
+
+  - input: |
+      Reference comparison for templates/C-PM-134-PC/bad/PD610932_SECONDARY_2026-08-28_14-12-57.jpg: verdict hold, confidence 0.88, findings: [{region: "17805 (HW-MS-2799) QTY=2", issue: count, expected: "2 screws", observed: "1 screw", severity: blocking, confidence: 0.86}]. Explain for the line lead and propose the right action.
+    rubric: |
+      - Names the region exactly as printed: 17805 (HW-MS-2799) QTY=2.
+      - Says one screw short, needs two; verdict HOLD; confidence in words ("likely").
+      - Proposes qc.hold (not release, not ship); says it waits for a person.
+      - Never says "rejected".
+    tags: [stop-ship, missing-part]
+
+  - input: |
+      Reference comparison for templates/C-VS-1012-INUT-2-H/bad/PD638942_SECONDARY_2026-08-28_14-20-02.jpg: verdict hold, confidence 0.91, findings: [{region: "23047 (10-010574) Qty 2", issue: orientation, expected: "grilles logo face-up", observed: "both grilles face-down (mesh up)", severity: blocking}]. Write the rework note.
+    rubric: |
+      - Rework note addresses the station, one imperative line: flip both grilles logo-up.
+      - Region named as printed; no blame; ends with "re-photo when done".
+      - Proposes qc.request_rework via propose_action; does not execute anything itself.
+    tags: [stop-ship, orientation]
+
+  - input: |
+      Reference comparison: verdict hold, confidence 0.55, findings: [{region: "16425 (GSM33178) QTY=8", issue: unreadable, observed: "glare over the box, screws not countable"}]. What do you tell the lead?
+    rubric: |
+      - Says the box is unreadable, NOT a guessed count.
+      - Recommends a hand count or a re-photo; verdict stays hold but is described as "unsure".
+      - Mentions glare as the cause.
+    tags: [stop-ship, unreadable]
+
+  - input: |
+      Reference comparison on a C-PM-134-PC photo flagged region "37860 (10-013095)" as wrong_part: "bracket has two extra holes in the flange". Apply the learnings and decide.
+    rubric: |
+      - Applies the rev-b-bracket-is-not-wrong learning: extra holes = Rev B, correct part.
+      - Does NOT hold on that finding alone; if nothing else is wrong, verdict pass with the note.
+      - Would still flag a mirrored bracket.
+    tags: [stop-ship, learning-applied]
+
+  - input: |
+      Reference comparison: verdict hold, confidence 0.70, findings: [{region: "13405 (CM86508) QTY=4", issue: unreadable, observed: "assembler's hand covers the box"}, {region: "HK Production Order Label", issue: ok}]. Photo quality notes: hands in frame.
+    rubric: |
+      - Treats the hand as a photo-quality finding: asks for a re-photo with hands clear.
+      - Does not accuse the assembler of a missing part.
+      - Confidence spoken as unsure.
+    tags: [photo-quality]

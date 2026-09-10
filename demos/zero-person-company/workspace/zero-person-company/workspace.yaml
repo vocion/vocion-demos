@@ -1,0 +1,13 @@
+version: 1
+orgId: proj_zero_person_company
+name: Zero-Person Company
+description: >-
+  A small autonomous company: a board and a CEO agent direct a four-person
+  content team (strategist, writer, QA editor, distribution). Every action
+  that would leave the building — sending a post out, filing a training
+  example — is a draft until a human approves it in the review queue.
+lead: ceo
+accountableUser: founder@zero-person.example
+defaults:
+  model: claude-sonnet-4-6
+  temperature: '0.3'

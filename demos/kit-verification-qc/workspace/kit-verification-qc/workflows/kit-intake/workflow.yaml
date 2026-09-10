@@ -1,0 +1,21 @@
+slug: kit_intake
+name: Kit photo intake
+description: >-
+  Pull new pack-station photos from the bucket into the workspace, then pause
+  for a person to pick which to verify. Verification itself is the Pack
+  Inspector's job (chat or mission) — it calls the vision tools and proposes
+  holds; this workflow is the intake beat.
+version: 1
+status: active
+trigger:
+  type: manual
+steps:
+  - name: pull_photos
+    type: sync
+    sources: [kit-photos]
+  - name: choose_batch
+    type: approve
+    prompt: >-
+      New photos are in. Approve to hand the batch to the Pack Inspector for
+      verification, or decline to leave them in the inbox.
+    reviews: pull_photos

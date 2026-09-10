@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * build-reel-audio.mjs — narration + music bed for the construction booth
- * reel. Adapted from the down-to-earth demo's audio builder.
+ * reel. Adapted from the retail-hiring demo's audio builder.
  *
  * Narration: ElevenLabs when ELEVENLABS_API_KEY is set (env or the umbrella
  * vocion-local/.env), else macOS `say`. One segment per scene, placed at the

@@ -1,0 +1,27 @@
+# Manager inbox — the reel's per-store shortlist scene. Same list archetype,
+# filtered to routed applicants and grouped by store, the way each store
+# manager receives their slice by email today.
+slug: store-inbox
+title: Store Manager Inbox
+description: Qualified applicants (70+), routed to the right store — what each manager sees.
+icon: inbox
+nav: { section: Hiring, order: 2 }
+archetype: list
+source: { kind: objects, objectType: applicant }
+filters:
+  - { field: meta.score, op: gte, value: 70 }
+  - { field: status, op: neq, value: duplicate }
+groupBy: meta.store
+sort: { field: meta.score, dir: desc }
+fields:
+  - { key: name, label: Applicant, from: meta.name }
+  - { key: role, label: Role, from: meta.role }
+  - { key: score, label: Score, from: meta.score, format: score }
+  - { key: routed_to, label: Routed to, from: meta.routed_to }
+  - { key: availability, label: Availability, from: meta.availability }
+  - key: ceo_flag
+    label: CEO flag
+    from: meta.ceo_flag
+    format: badge
+    tones: { "true": warn, "false": muted }
+rowLink: /dashboard/objects/{id}

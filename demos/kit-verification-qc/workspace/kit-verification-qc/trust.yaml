@@ -1,0 +1,17 @@
+# Autonomy ladder for the gated QC actions. Everything starts DISABLED: every
+# hold, release, rework and training-set change is a person's decision in
+# Review. Enabling a rule lets a proposal above the confidence bar execute
+# without a click — earned per action, after shadow mode shows the numbers.
+rules:
+  - action: qc.hold
+    autoApproveAbove: 0.97
+    enabled: false
+  - action: qc.release
+    autoApproveAbove: 0.99
+    enabled: false
+  - action: qc.request_rework
+    autoApproveAbove: 0.97
+    enabled: false
+  - action: dataset.add_example
+    autoApproveAbove: 0.99
+    enabled: false

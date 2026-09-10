@@ -1,0 +1,57 @@
+# Kit Verification Command Center — the objects list archetype over the
+# `inspection` records: stats row + the full table. Reads what the tools and
+# the seed maintain; no new data model.
+slug: command-center
+title: Kit Verification
+description: Every kit photographed at the pack station, verified against its own good references — held for a person when anything is off.
+icon: gauge
+nav: { section: Quality, order: 1 }
+archetype: list
+source: { kind: objects, objectType: inspection }
+sort: { field: createdAt, dir: desc }
+widgets:
+  - component: VisionEngines
+    position: above
+    data: []
+stats:
+  - { label: Kits inspected, kind: count }
+  - { label: Held, kind: countWhere, where: { field: status, op: eq, value: held } }
+  - { label: Passed, kind: countWhere, where: { field: status, op: eq, value: passed } }
+  - { label: Model-verified, kind: countWhere, where: { field: meta.source, op: eq, value: model } }
+fields:
+  - { key: photo, label: Photo, from: meta.image_url, format: image }
+  - { key: kit, label: Kit, from: meta.template_id, format: mono }
+  - { key: po, label: Production order, from: meta.production_order, format: mono }
+  - key: verdict
+    label: Verdict
+    from: meta.verdict
+    format: badge
+    tones: { pass: ok, hold: warn }
+  - key: status
+    label: Status
+    from: status
+    format: badge
+    tones: { passed: ok, held: warn, released: info, rework: bad, pending: muted }
+  - { key: confidence, label: Confidence, from: meta.confidence, format: text }
+  - key: claude
+    label: Claude Vision
+    from: meta.engines.claude.verdict
+    format: badge
+    tones: { pass: ok, hold: warn }
+  - key: rekognition
+    label: Rekognition
+    from: meta.engines.rekognition.verdict
+    format: badge
+    tones: { pass: ok, hold: warn }
+  - key: agreement
+    label: Engines
+    from: meta.engines.agreement
+    format: badge
+    tones: { agree: ok, disagree: bad, one-engine: muted }
+  - key: source
+    label: Basis
+    from: meta.source
+    format: badge
+    tones: { model: ok, labelled_history: muted }
+  - { key: captured, label: Captured, from: meta.captured_at, format: mono }
+rowLink: /dashboard/objects/{id}
